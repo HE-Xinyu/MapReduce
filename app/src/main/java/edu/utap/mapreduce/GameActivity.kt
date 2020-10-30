@@ -1,5 +1,6 @@
 package edu.utap.mapreduce
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -33,6 +34,12 @@ class GameActivity : AppCompatActivity() {
                 atkV.text = it.atk.toString()
                 defV.text = it.def.toString()
                 spdV.text = it.spd.toString()
+
+//                wwww
+                if (it.hp <= 0){
+                    val intent = Intent(this, EndActivity::class.java)
+                    startActivity(intent)
+                }
             }
         )
 
