@@ -1,29 +1,38 @@
 package edu.utap.mapreduce.model
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class GameViewModel : ViewModel() {
-    private var player = MutableLiveData<Player>().apply {
-        value = Player(99, 99, 99, 99)
-    }
+    /*
+        Everything here should be irrelevant to the view
 
-    private var gameMap = MutableLiveData<List<Room>>()
+        Hence stuff like the mapping of the view id and the room index should be
+        maintained in the activity instead
+     */
+    private var player = MutableLiveData<Player>()
+
+    private var stage = MutableLiveData<Stage>()
 
     init {
-        Log.d("aaa", "VM Init")
-        val rooms = emptyList<Room>().toMutableList()
-        for (i in 0 until 5) {
-            for (j in 0 until 5) {
-                rooms.add(Room(i, j))
-            }
-        }
-        gameMap.value = rooms
+        // TODO: player should spawn at a random room
+        val curPlayer = Player(99, 99, 99, 99)
+        curPlayer.roomIdx = 0
+        player.value = curPlayer
+
+        stage.value = Stage(1)
     }
 
     fun observePlayer(): LiveData<Player> = player
 
-    fun observeMap(): LiveData<List<Room>> = gameMap
+    fun observeStage(): LiveData<Stage> = stage
+
+    fun setPlayer(newPlayer: Player) {
+        player.value = newPlayer
+    }
+
+    fun setStage(newStage: Stage) {
+        stage.value = newStage
+    }
 }
