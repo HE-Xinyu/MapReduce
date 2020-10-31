@@ -1,5 +1,6 @@
 package edu.utap.mapreduce
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +17,7 @@ import kotlinx.android.synthetic.main.activity_game.defV
 import kotlinx.android.synthetic.main.activity_game.hpV
 import kotlinx.android.synthetic.main.activity_game.mapContainer
 import kotlinx.android.synthetic.main.activity_game.spdV
+import kotlinx.android.synthetic.main.activity_game.stageV
 
 class GameActivity : AppCompatActivity() {
     private val model: GameViewModel by viewModels()
@@ -37,6 +39,7 @@ class GameActivity : AppCompatActivity() {
         Log.d("aaa", "clicking button (${roomView.x}, ${roomView.y})")
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
@@ -61,6 +64,7 @@ class GameActivity : AppCompatActivity() {
             this,
             {
                 stage = it
+                stageV.text = "Stage ${it.curStage}"
                 it.rooms.forEach {
                     room ->
                     val button = Button(this)
