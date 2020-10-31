@@ -6,5 +6,5 @@ class Player(
     var def: Int,
     var spd: Int,
 ) {
-    var roomId = -1
+    var roomIdx = -1
 }

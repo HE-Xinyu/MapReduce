@@ -16,7 +16,7 @@ class Room(var x: Int, var y: Int) {
 
 
      */
-    private var visited = false
+    var visited = false
 
     /*
         Check if the room can reach the other one.
