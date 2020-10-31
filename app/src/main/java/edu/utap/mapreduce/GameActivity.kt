@@ -50,8 +50,7 @@ class GameActivity : AppCompatActivity() {
                 defV.text = it.def.toString()
                 spdV.text = it.spd.toString()
 
-//                wwww
-                if (it.hp <= 0){
+                if (it.hp <= 0) {
                     val intent = Intent(this, EndActivity::class.java)
                     startActivity(intent)
                 }

@@ -15,7 +15,7 @@ class GameViewModel : ViewModel() {
         curPlayer.roomId = 0
         player.value = curPlayer
 
-        stage.value = Stage(0)
+        stage.value = Stage(1)
     }
 
     fun observePlayer(): LiveData<Player> = player
