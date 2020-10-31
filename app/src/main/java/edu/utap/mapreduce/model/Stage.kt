@@ -1,13 +1,14 @@
 package edu.utap.mapreduce.model
 
-class Stage {
-    private var rooms = emptyList<Room>().toMutableList()
-//    private var n: Int
+class Stage(private var curStage: Int) {
+    var rooms = emptyList<Room>().toMutableList()
+    private val n: Int = 5
 
-//    constructor(n: Int) {
-//        for (x in 0 until n * n) {
-//            rooms.add(Room())
-//        }
-//        this.n = n
-//    }
+    init {
+        for (i in 0 until 5) {
+            for (j in 0 until 5) {
+                rooms.add(Room(i, j))
+            }
+        }
+    }
 }
