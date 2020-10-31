@@ -7,7 +7,8 @@ class Stage(var curStage: Int) {
     init {
         for (i in 0 until n) {
             for (j in 0 until n) {
-                rooms.add(Room(i, j))
+                val kind = if (i == n - 1 && j == n - 1) RoomKind.BOSS else RoomKind.NORMAL
+                rooms.add(Room(i, j, kind))
             }
         }
     }

@@ -10,8 +10,11 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import edu.utap.mapreduce.model.BattleResult
+import edu.utap.mapreduce.model.BattleSimulator
 import edu.utap.mapreduce.model.GameViewModel
 import edu.utap.mapreduce.model.Player
+import edu.utap.mapreduce.model.RoomKind
 import edu.utap.mapreduce.model.Stage
 import kotlinx.android.synthetic.main.activity_game.atkV
 import kotlinx.android.synthetic.main.activity_game.defV
@@ -54,12 +57,28 @@ class GameActivity : AppCompatActivity() {
         clickedRoom.visited = true
 
         // TODO: battle should happen here
+        when (clickedRoom.kind) {
+            RoomKind.NORMAL, RoomKind.BOSS -> {
+                val result = BattleSimulator.oneOnOne(player, clickedRoom.enemy)
+                if (result == BattleResult.LOSE) {
+                    endGame(false)
+                }
+                if (clickedRoom.kind == RoomKind.BOSS) {
+                    endGame(true)
+                }
+            }
+        }
 
         player.roomIdx = viewId2Idx[roomView.id]!!
 
         model.setPlayer(player)
         model.setStage(stage)
         Log.d("aaa", "clicking button (${roomView.x}, ${roomView.y})")
+    }
+
+    private fun endGame(win: Boolean) {
+        // TODO
+        Toast.makeText(this, "Win: $win", Toast.LENGTH_SHORT).show()
     }
 
     /*
