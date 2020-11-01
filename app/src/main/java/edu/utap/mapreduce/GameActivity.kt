@@ -64,7 +64,12 @@ class GameActivity : AppCompatActivity() {
                     endGame(false)
                 }
                 if (clickedRoom.kind == RoomKind.BOSS) {
-                    endGame(true)
+                    if (stage.curStage == Stage.MaxStages) {
+                        endGame(true)
+                    } else {
+                        // player gets past the current stage, advance to the next one.
+                        stage = Stage(stage.curStage + 1)
+                    }
                 }
             }
         }

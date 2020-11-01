@@ -4,6 +4,10 @@ class Stage(var curStage: Int) {
     var rooms = emptyList<Room>().toMutableList()
     private val n: Int = 5
 
+    companion object {
+        const val MaxStages = 3
+    }
+
     init {
         for (i in 0 until n) {
             for (j in 0 until n) {
