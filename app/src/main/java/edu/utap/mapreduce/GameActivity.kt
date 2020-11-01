@@ -17,9 +17,13 @@ import edu.utap.mapreduce.model.Player
 import edu.utap.mapreduce.model.RoomKind
 import edu.utap.mapreduce.model.Stage
 import kotlinx.android.synthetic.main.activity_game.atkV
+import kotlinx.android.synthetic.main.activity_game.chestsV
+import kotlinx.android.synthetic.main.activity_game.coinsV
 import kotlinx.android.synthetic.main.activity_game.defV
 import kotlinx.android.synthetic.main.activity_game.hpV
+import kotlinx.android.synthetic.main.activity_game.keysV
 import kotlinx.android.synthetic.main.activity_game.mapContainer
+import kotlinx.android.synthetic.main.activity_game.pathsV
 import kotlinx.android.synthetic.main.activity_game.spdV
 import kotlinx.android.synthetic.main.activity_game.stageV
 
@@ -59,7 +63,7 @@ class GameActivity : AppCompatActivity() {
         // TODO: battle should happen here
         when (clickedRoom.kind) {
             RoomKind.NORMAL, RoomKind.BOSS -> {
-                val result = BattleSimulator.oneOnOne(player, clickedRoom.enemy)
+                val result = BattleSimulator.oneOnOne(player, clickedRoom.enemy, stage)
                 if (result == BattleResult.LOSE) {
                     endGame(false)
                 }
@@ -141,10 +145,15 @@ class GameActivity : AppCompatActivity() {
             this,
             {
                 player = it
-                hpV.text = it.hp.toString()
-                atkV.text = it.atk.toString()
-                defV.text = it.def.toString()
-                spdV.text = it.spd.toString()
+                hpV.text = "HP: ${it.hp}"
+                atkV.text = "ATK: ${it.atk}"
+                defV.text = "DEF: ${it.def}"
+                spdV.text = "SPD: ${it.spd}"
+
+                keysV.text = "Keys: ${it.numKeys}"
+                pathsV.text = "Paths: ${it.numPaths}"
+                chestsV.text = "Chests: ${it.numChests}"
+                coinsV.text = "Coins: ${it.numCoins}"
 
                 // TODO: the end game event should not happen here.
                 if (it.hp <= 0) {
