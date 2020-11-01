@@ -16,14 +16,14 @@ class BattleSimulator {
             Simulate 1 vs 1 battle
          */
         fun oneOnOne(player: Player, enemy: Enemy, stage: Stage): BattleResult {
+            player.obtainedItems.forEach {
+                if (it.kind == ItemKind.PASSIVE) {
+                    it.onStartBattle(player, enemy, stage)
+                }
+            }
             var round = 1
             while (round < MaxRound) {
                 round++
-                player.obtainedItems.forEach {
-                    if (it.kind == ItemKind.PASSIVE) {
-                        it.onStartBattle(player, enemy, stage)
-                    }
-                }
                 val damageToEnemy = max(player.atk - enemy.def, 0)
                 val damageToPlayer = max(enemy.atk - player.def, 0)
                 if (player.spd >= enemy.spd) {

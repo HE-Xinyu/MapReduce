@@ -10,6 +10,7 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import edu.utap.mapreduce.model.BattleResult
 import edu.utap.mapreduce.model.BattleSimulator
 import edu.utap.mapreduce.model.GameViewModel
@@ -21,6 +22,7 @@ import kotlinx.android.synthetic.main.activity_game.chestsV
 import kotlinx.android.synthetic.main.activity_game.coinsV
 import kotlinx.android.synthetic.main.activity_game.defV
 import kotlinx.android.synthetic.main.activity_game.hpV
+import kotlinx.android.synthetic.main.activity_game.itemsContainer
 import kotlinx.android.synthetic.main.activity_game.keysV
 import kotlinx.android.synthetic.main.activity_game.mapContainer
 import kotlinx.android.synthetic.main.activity_game.pathsV
@@ -31,6 +33,7 @@ class GameActivity : AppCompatActivity() {
     private val model: GameViewModel by viewModels()
     private lateinit var stage: Stage
     private lateinit var player: Player
+    private lateinit var itemListAdapter: ItemListAdapter
 
     // room view id -> room index
     private var viewId2Idx = mutableMapOf<Int, Int>()
@@ -154,6 +157,15 @@ class GameActivity : AppCompatActivity() {
                 pathsV.text = "Paths: ${it.numPaths}"
                 chestsV.text = "Chests: ${it.numChests}"
                 coinsV.text = "Coins: ${it.numCoins}"
+
+                if (this::itemListAdapter.isInitialized) {
+                    itemListAdapter.player = it
+                    itemListAdapter.notifyDataSetChanged()
+                } else {
+                    itemListAdapter = ItemListAdapter(it)
+                    itemsContainer.adapter = itemListAdapter
+                    itemsContainer.layoutManager = LinearLayoutManager(this)
+                }
 
                 // TODO: the end game event should not happen here.
                 if (it.hp <= 0) {
