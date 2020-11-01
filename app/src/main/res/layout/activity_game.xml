@@ -32,14 +32,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/pickUpV"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mapContainer"
         android:id="@+id/itemsV">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ITEMS" />
 
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/itemsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/StatsV"
+        app:layout_constraintEnd_toStartOf="@+id/statsV"
         app:layout_constraintStart_toEndOf="@+id/itemsV"
         android:id="@+id/pickUpV"
         android:orientation="vertical"
@@ -48,25 +58,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/keysV"
-            android:text="KEYS: 123" />
+            android:text="" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/pathsV"
-            android:text="PATHS: 123" />
+            android:text="" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/chestsV"
-            android:text="CHESTS: 123" />
+            android:text="" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/moneyV"
-            android:text="MONEY: 123" />
+            android:id="@+id/coinsV"
+            android:text="" />
 
     </LinearLayout>
 
@@ -74,7 +84,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:id="@+id/StatsV"
+        android:id="@+id/statsV"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/pickUpV"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -83,25 +93,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/hpV"
-            android:text="HP: 123" />
+            android:text="" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/atkV"
-            android:text="ATK: 123" />
+            android:text="" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/defV"
-            android:text="DEF: 123" />
+            android:text="" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/spdV"
-            android:text="SPD: 123" />
+            android:text="" />
 
     </LinearLayout>
 

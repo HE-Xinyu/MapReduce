@@ -10,6 +10,7 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import edu.utap.mapreduce.model.BattleResult
 import edu.utap.mapreduce.model.BattleSimulator
 import edu.utap.mapreduce.model.GameViewModel
@@ -17,9 +18,14 @@ import edu.utap.mapreduce.model.Player
 import edu.utap.mapreduce.model.RoomKind
 import edu.utap.mapreduce.model.Stage
 import kotlinx.android.synthetic.main.activity_game.atkV
+import kotlinx.android.synthetic.main.activity_game.chestsV
+import kotlinx.android.synthetic.main.activity_game.coinsV
 import kotlinx.android.synthetic.main.activity_game.defV
 import kotlinx.android.synthetic.main.activity_game.hpV
+import kotlinx.android.synthetic.main.activity_game.itemsContainer
+import kotlinx.android.synthetic.main.activity_game.keysV
 import kotlinx.android.synthetic.main.activity_game.mapContainer
+import kotlinx.android.synthetic.main.activity_game.pathsV
 import kotlinx.android.synthetic.main.activity_game.spdV
 import kotlinx.android.synthetic.main.activity_game.stageV
 
@@ -27,6 +33,7 @@ class GameActivity : AppCompatActivity() {
     private val model: GameViewModel by viewModels()
     private lateinit var stage: Stage
     private lateinit var player: Player
+    private lateinit var itemListAdapter: ItemListAdapter
 
     // room view id -> room index
     private var viewId2Idx = mutableMapOf<Int, Int>()
@@ -59,12 +66,17 @@ class GameActivity : AppCompatActivity() {
         // TODO: battle should happen here
         when (clickedRoom.kind) {
             RoomKind.NORMAL, RoomKind.BOSS -> {
-                val result = BattleSimulator.oneOnOne(player, clickedRoom.enemy)
+                val result = BattleSimulator.oneOnOne(player, clickedRoom.enemy, stage)
                 if (result == BattleResult.LOSE) {
                     endGame(false)
                 }
                 if (clickedRoom.kind == RoomKind.BOSS) {
-                    endGame(true)
+                    if (stage.curStage == Stage.MaxStages) {
+                        endGame(true)
+                    } else {
+                        // player gets past the current stage, advance to the next one.
+                        stage = Stage(stage.curStage + 1)
+                    }
                 }
             }
         }
@@ -136,10 +148,24 @@ class GameActivity : AppCompatActivity() {
             this,
             {
                 player = it
-                hpV.text = it.hp.toString()
-                atkV.text = it.atk.toString()
-                defV.text = it.def.toString()
-                spdV.text = it.spd.toString()
+                hpV.text = "HP: ${it.hp}"
+                atkV.text = "ATK: ${it.atk}"
+                defV.text = "DEF: ${it.def}"
+                spdV.text = "SPD: ${it.spd}"
+
+                keysV.text = "Keys: ${it.numKeys}"
+                pathsV.text = "Paths: ${it.numPaths}"
+                chestsV.text = "Chests: ${it.numChests}"
+                coinsV.text = "Coins: ${it.numCoins}"
+
+                if (this::itemListAdapter.isInitialized) {
+                    itemListAdapter.player = it
+                    itemListAdapter.notifyDataSetChanged()
+                } else {
+                    itemListAdapter = ItemListAdapter(it)
+                    itemsContainer.adapter = itemListAdapter
+                    itemsContainer.layoutManager = LinearLayoutManager(this)
+                }
 
                 // TODO: the end game event should not happen here.
                 if (it.hp <= 0) {
