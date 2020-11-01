@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -77,8 +78,16 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun endGame(win: Boolean) {
-        // TODO
-        Toast.makeText(this, "Win: $win", Toast.LENGTH_SHORT).show()
+        if (!win) {
+            Toast.makeText(this, "You lose the game", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, EndActivity::class.java)
+            startActivity(intent)
+        }
+        if (win) {
+            Toast.makeText(this, "Win: $win", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, EndActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     /*
@@ -94,8 +103,7 @@ class GameActivity : AppCompatActivity() {
     private fun redrawStage() {
         mapContainer.removeAllViews()
         viewId2Idx.clear()
-        stage.rooms.forEachIndexed {
-            idx, room ->
+        stage.rooms.forEachIndexed { idx, room ->
             val button = Button(this)
             button.layoutParams = FrameLayout.LayoutParams(
                 dpToPixel(RoomDisplaySize.toDouble()).toInt(),
@@ -106,20 +114,38 @@ class GameActivity : AppCompatActivity() {
             } else {
                 button.text = "(${room.x}, ${room.y})"
             }
-            button.x = mapContainer.x + room.x * (
+
+            // get the width and height of mapContainer
+            mapContainer.viewTreeObserver.addOnGlobalLayoutListener(
+                object : OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        mapContainer.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        val h = mapContainer.height // height is ready
+                        val w = mapContainer.width
+                        Log.d("ddd", "$h, $w ")
+                    }
+                }
+            )
+            // h = 1589, w = 1080，我怎么把这俩变量拿出来用……这俩现在写在上面的函数里
+            // center the buttons
+            val paddingX = (1080 / 2 - dpToPixel(180.toDouble())).toInt()
+            val paddingY = (1589 / 2 - dpToPixel(180.toDouble())).toInt()
+            button.x = paddingX + mapContainer.x + room.x * (
                 dpToPixel(
                     (RoomDisplaySize + RoomInterval).toDouble()
                 ).toInt()
                 )
-            button.y = mapContainer.y + room.y * (
+            button.y = paddingY + mapContainer.y + room.y * (
                 dpToPixel(
                     (RoomDisplaySize + RoomInterval).toDouble()
                 ).toInt()
                 )
-            button.setOnClickListener {
-                roomView ->
+            button.setOnClickListener { roomView ->
                 onRoomClick(roomView)
             }
+
+            // drew paths
+
             // use generateViewId() to avoid conflicts (hopefully)
             button.id = View.generateViewId()
             viewId2Idx[button.id] = idx
@@ -140,12 +166,6 @@ class GameActivity : AppCompatActivity() {
                 atkV.text = it.atk.toString()
                 defV.text = it.def.toString()
                 spdV.text = it.spd.toString()
-
-                // TODO: the end game event should not happen here.
-                if (it.hp <= 0) {
-                    val intent = Intent(this, EndActivity::class.java)
-                    startActivity(intent)
-                }
             }
         )
 
