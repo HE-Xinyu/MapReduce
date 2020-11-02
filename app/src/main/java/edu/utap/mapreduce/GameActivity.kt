@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -64,6 +63,12 @@ class GameActivity : AppCompatActivity() {
 
         clickedRoom.visited = true
 
+        // TODO：画线
+//        if(playerRoom.x - ) {
+//            clickedRoom.x
+//
+//        }
+
         // TODO: battle should happen here
         when (clickedRoom.kind) {
             RoomKind.NORMAL, RoomKind.BOSS -> {
@@ -87,18 +92,19 @@ class GameActivity : AppCompatActivity() {
         model.setPlayer(player)
         model.setStage(stage)
         Log.d("aaa", "clicking button (${roomView.x}, ${roomView.y})")
+        if (player.hp <= 0) { endGame(false) }
     }
 
     private fun endGame(win: Boolean) {
         if (!win) {
-            Toast.makeText(this, "You lose the game", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this, EndActivity::class.java)
-            startActivity(intent)
+            val loseIntent = Intent(this, EndActivity::class.java)
+            loseIntent.putExtra("changeText", "Game\n Over")
+            startActivity(loseIntent)
         }
         if (win) {
-            Toast.makeText(this, "Win: $win", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this, EndActivity::class.java)
-            startActivity(intent)
+            val winIntent = Intent(this, EndActivity::class.java)
+            winIntent.putExtra("changeText", "You\nWin")
+            startActivity(winIntent)
         }
     }
 
@@ -128,17 +134,17 @@ class GameActivity : AppCompatActivity() {
             }
 
             // get the width and height of mapContainer
-            mapContainer.viewTreeObserver.addOnGlobalLayoutListener(
-                object : OnGlobalLayoutListener {
-                    override fun onGlobalLayout() {
-                        mapContainer.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                        val h = mapContainer.height // height is ready
-                        val w = mapContainer.width
-                        Log.d("ddd", "$h, $w ")
-                    }
-                }
-            )
-            // h = 1589, w = 1080，我怎么把这俩变量拿出来用……这俩现在写在上面的函数里
+//            mapContainer.viewTreeObserver.addOnGlobalLayoutListener(
+//                object : OnGlobalLayoutListener {
+//                    override fun onGlobalLayout() {
+//                        mapContainer.viewTreeObserver.removeOnGlobalLayoutListener(this)
+//                        val h = mapContainer.height // height is ready
+//                        val w = mapContainer.width
+//                        Log.d("to get the height and width of display", "$h, $w ")
+//                    }
+//                }
+//            )
+            // h = 1589, w = 1080，
             // center the buttons
             val paddingX = (1080 / 2 - dpToPixel(180.toDouble())).toInt()
             val paddingY = (1589 / 2 - dpToPixel(180.toDouble())).toInt()
@@ -157,6 +163,7 @@ class GameActivity : AppCompatActivity() {
             }
 
             // drew paths
+            // TODO：画线
 
             // use generateViewId() to avoid conflicts (hopefully)
             button.id = View.generateViewId()
@@ -193,7 +200,6 @@ class GameActivity : AppCompatActivity() {
                     itemsContainer.adapter = itemListAdapter
                     itemsContainer.layoutManager = LinearLayoutManager(this)
                 }
-
             }
         )
 

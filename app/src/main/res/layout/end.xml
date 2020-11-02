@@ -26,18 +26,11 @@
         app:layout_constraintBottom_toBottomOf="@id/startBotton">
 
         <TextView
+            android:id="@+id/endTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Game"
-            android:textColor="#ffffff"
-            android:textSize="60dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Over"
+            android:text="Game \n Over"
             android:textColor="#ffffff"
             android:textSize="60dp" />
 
