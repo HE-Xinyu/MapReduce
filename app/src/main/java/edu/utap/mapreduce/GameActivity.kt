@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import edu.utap.mapreduce.model.BattleResult
 import edu.utap.mapreduce.model.BattleSimulator
 import edu.utap.mapreduce.model.GameViewModel
+import edu.utap.mapreduce.model.Item
 import edu.utap.mapreduce.model.Player
 import edu.utap.mapreduce.model.RoomKind
 import edu.utap.mapreduce.model.Stage
@@ -52,37 +53,59 @@ class GameActivity : AppCompatActivity() {
         val playerRoom = stage.rooms[player.roomIdx]
         val clickedRoom = stage.rooms[viewId2Idx[roomView.id]!!]
 
-        if (!playerRoom.canReach(clickedRoom)) {
+        if (!playerRoom.canReach(clickedRoom, stage)) {
             Toast.makeText(this, "Room unreachable", Toast.LENGTH_SHORT).show()
             return
         }
-        if (clickedRoom.visited) {
-            Toast.makeText(this, "Room already visited", Toast.LENGTH_SHORT).show()
-            return
-        }
 
-        clickedRoom.visited = true
+        if (!clickedRoom.visited) {
+            clickedRoom.visited = true
 
         // TODO：画线
 //        if(playerRoom.x - ) {
 //            clickedRoom.x
 //
 //        }
-
-        // TODO: battle should happen here
-        when (clickedRoom.kind) {
-            RoomKind.NORMAL, RoomKind.BOSS -> {
-                val result = BattleSimulator.oneOnOne(player, clickedRoom.enemy, stage)
-                if (result == BattleResult.LOSE) {
-                    endGame(false)
-                }
-                if (clickedRoom.kind == RoomKind.BOSS) {
-                    if (stage.curStage == Stage.MaxStages) {
-                        endGame(true)
-                    } else {
-                        // player gets past the current stage, advance to the next one.
-                        stage = Stage(stage.curStage + 1)
+            when (clickedRoom.kind) {
+                RoomKind.NORMAL, RoomKind.BOSS -> {
+                    val result = BattleSimulator.oneOnOne(player, clickedRoom.enemy!!, stage)
+                    if (result == BattleResult.LOSE) {
+                        endGame(false)
                     }
+                    if (clickedRoom.kind == RoomKind.BOSS) {
+                        if (stage.curStage == Stage.MaxStages) {
+                            endGame(true)
+                        } else {
+                            // player gets past the current stage, advance to the next one.
+                            stage = Stage(stage.curStage + 1)
+                        }
+                    }
+                }
+                RoomKind.CHEST -> {
+                    if (player.numKeys == 0) {
+                        Toast.makeText(this, "You don't have a key.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "You used a key.", Toast.LENGTH_SHORT).show()
+                        player.numKeys--
+
+                        val item = Item.fetchItem(player.obtainedItems)
+                        if (item != null) {
+                            player.obtainedItems.add(item)
+                        } else {
+                            Toast.makeText(
+                                this,
+                                "You have exhausted the item pool",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+                else -> {
+                    Toast.makeText(
+                        this,
+                        "Unhandled room kind ${clickedRoom.kind}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
