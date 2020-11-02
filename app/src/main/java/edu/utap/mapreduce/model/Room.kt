@@ -5,7 +5,8 @@ import kotlin.math.abs
 // expect more to come!
 enum class RoomKind {
     NORMAL,
-    BOSS
+    BOSS,
+    CHEST,
 }
 
 class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
@@ -14,7 +15,7 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
 
         TODO: it should be a list if we decide to add more enemies in one room
      */
-    var enemy: Enemy = Enemy(10, 10, 10, 10)
+    var enemy: Enemy? = Enemy(10, 10, 10, 10)
 
     /*
         Whether the room is visited by the user.

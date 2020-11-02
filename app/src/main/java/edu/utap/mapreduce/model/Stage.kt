@@ -28,6 +28,9 @@ class Stage(var curStage: Int) {
             }
         }
 
+        // for testing
+        rooms[1].kind = RoomKind.CHEST
+
         /*
             2. Initialize paths
 

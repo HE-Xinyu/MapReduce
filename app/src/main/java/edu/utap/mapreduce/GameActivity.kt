@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import edu.utap.mapreduce.model.BattleResult
 import edu.utap.mapreduce.model.BattleSimulator
 import edu.utap.mapreduce.model.GameViewModel
+import edu.utap.mapreduce.model.Item
 import edu.utap.mapreduce.model.Player
 import edu.utap.mapreduce.model.RoomKind
 import edu.utap.mapreduce.model.Stage
@@ -62,7 +63,7 @@ class GameActivity : AppCompatActivity() {
 
             when (clickedRoom.kind) {
                 RoomKind.NORMAL, RoomKind.BOSS -> {
-                    val result = BattleSimulator.oneOnOne(player, clickedRoom.enemy, stage)
+                    val result = BattleSimulator.oneOnOne(player, clickedRoom.enemy!!, stage)
                     if (result == BattleResult.LOSE) {
                         endGame(false)
                     }
@@ -74,6 +75,32 @@ class GameActivity : AppCompatActivity() {
                             stage = Stage(stage.curStage + 1)
                         }
                     }
+                }
+                RoomKind.CHEST -> {
+                    if (player.numKeys == 0) {
+                        Toast.makeText(this, "You don't have a key.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "You used a key.", Toast.LENGTH_SHORT).show()
+                        player.numKeys--
+
+                        val item = Item.fetchItem(player.obtainedItems)
+                        if (item != null) {
+                            player.obtainedItems.add(item)
+                        } else {
+                            Toast.makeText(
+                                this,
+                                "You have exhausted the item pool",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+                else -> {
+                    Toast.makeText(
+                        this,
+                        "Unhandled room kind ${clickedRoom.kind}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
