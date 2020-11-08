@@ -12,13 +12,13 @@ class EndActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.end)
 
-        val changeTextStr = intent.getStringExtra("changeText")
+        val resultBoo = intent.extras.getBoolean("resultInfo")
         val endGameTV = findViewById<TextView>(R.id.endTV)
-        endGameTV.text = changeTextStr
+        if (resultBoo) { endGameTV.text = "You\nWin" } else { endGameTV.text = "Game\n Over" }
 
         endBackButton.setOnClickListener {
-            val backIntent = Intent(this, MainActivity::class.java)
-            startActivity(backIntent)
+            val newGameIntent = Intent(this, MainActivity::class.java)
+            startActivity(newGameIntent)
         }
     }
 }

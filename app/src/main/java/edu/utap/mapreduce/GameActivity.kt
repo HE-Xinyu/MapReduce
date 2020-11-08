@@ -2,9 +2,11 @@ package edu.utap.mapreduce
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -54,18 +56,25 @@ class GameActivity : AppCompatActivity() {
         val clickedRoom = stage.rooms[viewId2Idx[roomView.id]!!]
 
         if (!playerRoom.canReach(clickedRoom, stage)) {
-            Toast.makeText(this, "Room unreachable", Toast.LENGTH_SHORT).show()
+            if (playerRoom.isAdjacent(clickedRoom)) {
+                // use 'paths' to make a room reachable
+                if (player.numPaths > 0) {
+                    // TODO:如果想去的房间被判定和玩家所在的房间相邻，那应该已经是可以去的了呀？为啥还会出现没有路这种情况？
+                    // 没确认想法正不正确，就先没测试
+                    player.numPaths -= 1
+                    stage.paths[playerRoom.id].add(clickedRoom)
+                    stage.paths[clickedRoom.id].add(playerRoom)
+                } else {
+                    Toast.makeText(this, "No more paths", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(this, "Room unreachable", Toast.LENGTH_SHORT).show()
+            }
             return
         }
 
         if (!clickedRoom.visited) {
             clickedRoom.visited = true
-
-        // TODO：画线
-//        if(playerRoom.x - ) {
-//            clickedRoom.x
-//
-//        }
             when (clickedRoom.kind) {
                 RoomKind.NORMAL, RoomKind.BOSS -> {
                     val result = BattleSimulator.oneOnOne(player, clickedRoom.enemy!!, stage)
@@ -115,19 +124,19 @@ class GameActivity : AppCompatActivity() {
         model.setPlayer(player)
         model.setStage(stage)
         Log.d("aaa", "clicking button (${roomView.x}, ${roomView.y})")
-        if (player.hp <= 0) { endGame(false) }
     }
 
     private fun endGame(win: Boolean) {
+        val resultIntent = Intent(this, EndActivity::class.java)
+        val resultInfo = Bundle()
         if (!win) {
-            val loseIntent = Intent(this, EndActivity::class.java)
-            loseIntent.putExtra("changeText", "Game\n Over")
-            startActivity(loseIntent)
-        }
-        if (win) {
-            val winIntent = Intent(this, EndActivity::class.java)
-            winIntent.putExtra("changeText", "You\nWin")
-            startActivity(winIntent)
+            resultInfo.putBoolean("resultInfo", false)
+            resultIntent.putExtras(resultInfo)
+            startActivity(resultIntent)
+        } else {
+            resultInfo.putBoolean("resultInfo", true)
+            resultIntent.putExtras(resultInfo)
+            startActivity(resultIntent)
         }
     }
 
@@ -144,6 +153,15 @@ class GameActivity : AppCompatActivity() {
     private fun redrawStage() {
         mapContainer.removeAllViews()
         viewId2Idx.clear()
+        // drew paths
+        // TODO：画线
+//        fun drawPaths() {
+//            val bitmap = Bitmap.createBitmap(1080, 1589, Bitmap.Config.ARGB_4444)
+//            val canvas = Canvas()
+//            val paint = Paint()
+//            paint.color = Color.BLACK
+//        }
+
         stage.rooms.forEachIndexed { idx, room ->
             val button = Button(this)
             button.layoutParams = FrameLayout.LayoutParams(
@@ -151,50 +169,61 @@ class GameActivity : AppCompatActivity() {
                 dpToPixel(RoomDisplaySize.toDouble()).toInt()
             )
             if (player.roomIdx == idx) {
-                button.text = "(${room.x}, ${room.y}) P"
+                button.text = "P"
+                // TODO: 玩家当前所在的房间背景颜色没有改，找出来为什么
+                button.setBackgroundColor(Color.parseColor("#00b8a9"))
+                // TODO: 判定房间的相对位置没想明白
+//                val bitmap = Bitmap.createBitmap(1080, 1589, Bitmap.Config.ARGB_4444)
+//                val canvas = Canvas()
+//                val paint = Paint()
+//                paint.color = Color.BLACK
+//                val startX = button.x + dpToPixel(RoomDisplaySize.toDouble()).toInt()
+//                val startY = button.y + dpToPixel(RoomDisplaySize.toDouble()/2).toInt()
+//                canvas.drawLine(startX, startY, 4000f, 400f, paint)
+// //                drawPaths()
             } else {
-                button.text = "(${room.x}, ${room.y})"
+                button.text = ""
             }
 
-            // get the width and height of mapContainer
-//            mapContainer.viewTreeObserver.addOnGlobalLayoutListener(
-//                object : OnGlobalLayoutListener {
-//                    override fun onGlobalLayout() {
-//                        mapContainer.viewTreeObserver.removeOnGlobalLayoutListener(this)
-//                        val h = mapContainer.height // height is ready
-//                        val w = mapContainer.width
-//                        Log.d("to get the height and width of display", "$h, $w ")
-//                    }
-//                }
-//            )
-            // h = 1589, w = 1080，
-            // center the buttons
-            val paddingX = (1080 / 2 - dpToPixel(180.toDouble())).toInt()
-            val paddingY = (1589 / 2 - dpToPixel(180.toDouble())).toInt()
-            button.x = paddingX + mapContainer.x + room.x * (
-                dpToPixel(
-                    (RoomDisplaySize + RoomInterval).toDouble()
-                ).toInt()
-                )
-            button.y = paddingY + mapContainer.y + room.y * (
-                dpToPixel(
-                    (RoomDisplaySize + RoomInterval).toDouble()
-                ).toInt()
-                )
-            button.setOnClickListener { roomView ->
-                onRoomClick(roomView)
+            // get the width and height of mapContainer, center buttons
+            mapContainer.viewTreeObserver.addOnGlobalLayoutListener(
+                object :
+                    OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        mapContainer.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        val h = mapContainer.height
+                        val w = mapContainer.width
+// h = 1589, w = 1080
+                        val paddingX = (w / 2 - dpToPixel(180.toDouble())).toInt()
+                        val paddingY = (h / 2 - dpToPixel(180.toDouble())).toInt()
+                        button.x = paddingX + mapContainer.x + room.x * (
+                            dpToPixel(
+                                (RoomDisplaySize + RoomInterval).toDouble()
+                            ).toInt()
+                            )
+                        button.y = paddingY + mapContainer.y + room.y * (
+                            dpToPixel(
+                                (RoomDisplaySize + RoomInterval).toDouble()
+                            ).toInt()
+                            )
+                        button.setOnClickListener { roomView ->
+                            onRoomClick(roomView)
+                        }
+                    }
+                }
+            )
+            // set background color of buttons
+            when (room.kind) {
+                RoomKind.BOSS -> button.setBackgroundColor(Color.parseColor("#f6416c"))
+                RoomKind.CHEST -> button.setBackgroundColor(Color.parseColor("#ffde7d"))
+                else -> button.setBackgroundColor(Color.parseColor("#f8f3d4"))
             }
-
-            // drew paths
-            // TODO：画线
-
             // use generateViewId() to avoid conflicts (hopefully)
             button.id = View.generateViewId()
             viewId2Idx[button.id] = idx
             mapContainer.addView(button)
         }
     }
-
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
