@@ -7,6 +7,7 @@ Next-gen rogue-like game!
 - Chests
 - Coins
 - Shop
+- Award system
 - Enemy Pool
 - Activated Items
 - More to come...
