@@ -10,6 +10,7 @@ Next-gen rogue-like game!
 - Award system
 - Enemy Pool
 - Activated Items
+- Manual
 - More to come...
 
 # Finished features
