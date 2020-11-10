@@ -15,11 +15,14 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
 
         TODO: it should be a list if we decide to add more enemies in one room
      */
-    var enemy: Enemy? = Enemy(10, 10, 10, 10)
+    var enemies: MutableList<Enemy>? = listOf(Enemy(10, 10, 10, 10)).toMutableList()
 
     /*
         Whether the room is visited by the user.
-        Currently if visited, then it means that the enemy is already defeated.
+
+        Actually `visited` is not the most accurate representation. If a room is visited, it really
+        means that the player has finished the required interaction of it, e.g. defeat all the
+        enemies, collect an item.
      */
     var visited = false
 

@@ -1,5 +1,6 @@
 package edu.utap.mapreduce.model
 
+import android.util.Log
 import kotlin.random.Random
 
 class Stage(var curStage: Int) {
@@ -15,7 +16,7 @@ class Stage(var curStage: Int) {
         const val MaxStages = 3
     }
 
-    init {
+    fun doInit() {
         // 1. initialize rooms
         for (i in 0 until n) {
             for (j in 0 until n) {
@@ -49,5 +50,19 @@ class Stage(var curStage: Int) {
                 }
             }
         }
+    }
+
+    init {
+        doInit()
+    }
+
+    fun advance() {
+        if (curStage == MaxStages) {
+            Log.e("aaa", "reached maximum stage! cannot advance")
+            return
+        }
+
+        curStage++
+        doInit()
     }
 }

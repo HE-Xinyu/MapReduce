@@ -1,0 +1,75 @@
+package edu.utap.mapreduce
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import edu.utap.mapreduce.model.BattleResult
+import edu.utap.mapreduce.model.BattleSimulator
+import edu.utap.mapreduce.model.Enemy
+import edu.utap.mapreduce.model.GameViewModel
+import edu.utap.mapreduce.model.Player
+import edu.utap.mapreduce.model.PlayerStatus
+import edu.utap.mapreduce.model.Room
+import edu.utap.mapreduce.model.RoomKind
+import edu.utap.mapreduce.model.Stage
+
+class EnemyListAdapter(
+    var player: Player,
+    var room: Room,
+    var stage: Stage,
+    var model: GameViewModel
+) : RecyclerView.Adapter<EnemyListAdapter.VH>() {
+    inner class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val nameView = itemView.findViewById<TextView>(R.id.enemyNameV)
+
+        fun bind(enemy: Enemy) {
+            nameView.text = enemy.hp.toString()
+            itemView.setOnClickListener {
+                /*
+                    battle happens here.
+                 */
+
+                // TODO: design a reward system for beating enemies
+                val enemyPos = room.enemies!!.indexOf(enemy)
+                val result = BattleSimulator.oneOnOne(player, enemy, stage)
+
+                if (result == BattleResult.WIN) {
+                    // TODO: verify that the enemies should be different even if
+                    //      they have the same stats
+                    room.enemies!!.remove(enemy)
+                    if (stage.curStage == Stage.MaxStages && room.kind == RoomKind.BOSS) {
+                        player.status = PlayerStatus.WIN
+                    } else if (room.enemies!!.size == 0) {
+                        // the room is cleared!
+                        // TODO: reward the player
+                        player.status = PlayerStatus.INTERACT_WITH_STAGE
+                        if (room.kind == RoomKind.BOSS) {
+                            stage.advance()
+                        }
+                        model.setStage(stage)
+                    }
+                    this@EnemyListAdapter.notifyItemRemoved(enemyPos)
+                } else {
+                    player.status = PlayerStatus.LOSE
+                }
+                model.setPlayer(player)
+            }
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        return VH(LayoutInflater.from(parent.context).inflate(R.layout.enemy_row, parent, false))
+    }
+
+    override fun onBindViewHolder(holder: VH, position: Int) {
+        room.enemies?.let {
+            holder.bind(it[position])
+        }
+    }
+
+    override fun getItemCount(): Int {
+        return room.enemies?.size ?: 0
+    }
+}
