@@ -25,7 +25,7 @@ class EnemyListAdapter(
         private val nameView = itemView.findViewById<TextView>(R.id.enemyNameV)
 
         fun bind(enemy: Enemy) {
-            nameView.text = enemy.hp.toString()
+            nameView.text = enemy.name
             itemView.setOnClickListener {
                 /*
                     battle happens here.

@@ -1,5 +1,7 @@
 package edu.utap.mapreduce.model
 
+import edu.utap.mapreduce.IAbleToFight
+
 enum class PlayerStatus {
     WIN,
     LOSE,
@@ -9,11 +11,11 @@ enum class PlayerStatus {
 }
 
 class Player(
-    hp: Int,
-    atk: Int,
-    def: Int,
-    spd: Int,
-) : CombatUnit(hp, atk, def, spd) {
+    override var hp: Int,
+    var atk: Int,
+    var def: Int,
+    var spd: Int,
+) : IAbleToFight {
     var roomIdx = -1
     /*
         The items owned by the player.

@@ -13,9 +13,9 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
     /*
         Currently every room contains one enemy
 
-        TODO: it should be a list if we decide to add more enemies in one room
+        TODO: randomly chosen from AllEnemies
      */
-    var enemies: MutableList<Enemy>? = listOf(Enemy(10, 10, 10, 10)).toMutableList()
+    var enemies: MutableList<Enemy>? = listOf(testEnemy.copy()).toMutableList()
 
     /*
         Whether the room is visited by the user.
@@ -41,5 +41,21 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
      */
     fun canReach(other: Room, stage: Stage): Boolean {
         return other.visited || stage.paths[id].contains(other)
+    }
+
+    fun tryEnter(player: Player): Pair<Boolean, String> {
+        return when (kind) {
+            RoomKind.NORMAL, RoomKind.BOSS -> {
+                Pair(true, "")
+            }
+            RoomKind.CHEST -> {
+                if (player.numKeys > 0) {
+                    player.numKeys--
+                    Pair(true, "You used a key.")
+                } else {
+                    Pair(false, "You don't have a key.")
+                }
+            }
+        }
     }
 }

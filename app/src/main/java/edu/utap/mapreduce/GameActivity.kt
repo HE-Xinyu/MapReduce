@@ -28,6 +28,7 @@ import kotlinx.android.synthetic.main.activity_game.mapContainer
 import kotlinx.android.synthetic.main.activity_game.pathsV
 import kotlinx.android.synthetic.main.activity_game.spdV
 import kotlinx.android.synthetic.main.activity_game.stageV
+import kotlinx.android.synthetic.main.activity_game.switchV
 
 class GameActivity : AppCompatActivity() {
     private val model: GameViewModel by viewModels()
@@ -50,6 +51,35 @@ class GameActivity : AppCompatActivity() {
         return dp * resources.displayMetrics.density
     }
 
+    /*
+        Switch the display of main container when the player is interacting with the room.
+
+        It is a little bit hard to read now, because the behavior is strangely controlled by the UI
+        i.e. what the button currently displays. The tradeoff is that there is no redundant
+        information.
+     */
+    private fun onSwitchButtonClick(button: View) {
+        button as Button
+        if (player.status == PlayerStatus.INTERACT_WITH_STAGE) {
+            Toast.makeText(
+                this,
+                "There is no room detail; please interact with the stage",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        val switchTextList = listOf("SHOW ROOM DETAIL", "SHOW STAGE")
+
+        when (button.text) {
+            switchTextList[0] -> drawRoomDetail(stage.rooms[player.roomIdx])
+            switchTextList[1] -> redrawStage(force = true)
+            else -> Log.e("aaa", "Impossible button text ${button.text}")
+        }
+
+        button.text = switchTextList[1 - switchTextList.indexOf(button.text)]
+    }
+
     private fun onRoomClick(roomView: View) {
         val playerRoom = stage.rooms[player.roomIdx]
         val clickedRoom = stage.rooms[viewId2Idx[roomView.id]!!]
@@ -70,8 +100,17 @@ class GameActivity : AppCompatActivity() {
         }
 
         if (!clickedRoom.visited) {
+            val (success, msg) = clickedRoom.tryEnter(player)
+            if (msg.isNotEmpty()) {
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            }
+            if (!success) {
+                return
+            }
+
+            player.roomIdx = viewId2Idx[roomView.id]!!
             player.status = PlayerStatus.INTERACT_WITH_ROOM
-            drawRoomDetail(clickedRoom)
+            switchV.callOnClick()
 
 //            when (clickedRoom.kind) {
 //                RoomKind.NORMAL, RoomKind.BOSS -> {
@@ -89,12 +128,6 @@ class GameActivity : AppCompatActivity() {
 //                    }
 //                }
 //                RoomKind.CHEST -> {
-//                    if (player.numKeys == 0) {
-//                        Toast.makeText(this, "You don't have a key.", Toast.LENGTH_SHORT).show()
-//                    } else {
-//                        Toast.makeText(this, "You used a key.", Toast.LENGTH_SHORT).show()
-//                        player.numKeys--
-//
 //                        val item = Item.fetchItem(player.obtainedItems)
 //                        if (item != null) {
 //                            player.obtainedItems.add(item)
@@ -121,7 +154,7 @@ class GameActivity : AppCompatActivity() {
         player.roomIdx = viewId2Idx[roomView.id]!!
 
         model.setPlayer(player)
-        model.setStage(stage)
+//        model.setStage(stage)
         Log.d("aaa", "clicking button (${roomView.x}, ${roomView.y})")
     }
 
@@ -153,6 +186,8 @@ class GameActivity : AppCompatActivity() {
                     enemyListAdapter = EnemyListAdapter(player, room, stage, model)
                     roomDetailV.adapter = enemyListAdapter
                 }
+            }
+            RoomKind.CHEST -> {
             }
             else -> {
             }
@@ -251,8 +286,14 @@ class GameActivity : AppCompatActivity() {
             {
                 stage = it
                 stageV.text = "Stage ${it.curStage}"
+
+                switchV.text = "SHOW ROOM DETAIL"
                 redrawStage()
             }
         )
+
+        switchV.setOnClickListener {
+            onSwitchButtonClick(it)
+        }
     }
 }
