@@ -58,7 +58,6 @@ class GameActivity : AppCompatActivity() {
             if (playerRoom.isAdjacent(clickedRoom)) {
                 // use 'paths' to make a room reachable
                 if (player.numPaths > 0) {
-                    // TODO 测试
                     player.numPaths -= 1
                     stage.paths[playerRoom.id].add(clickedRoom)
                     stage.paths[clickedRoom.id].add(playerRoom)
