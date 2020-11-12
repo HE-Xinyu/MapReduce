@@ -2,7 +2,6 @@ package edu.utap.mapreduce
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -63,6 +62,7 @@ class GameActivity : AppCompatActivity() {
                     player.numPaths -= 1
                     stage.paths[playerRoom.id].add(clickedRoom)
                     stage.paths[clickedRoom.id].add(playerRoom)
+                    Toast.makeText(this, "You can go to the room now!", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "No more paths", Toast.LENGTH_SHORT).show()
                 }
@@ -74,7 +74,6 @@ class GameActivity : AppCompatActivity() {
 
         if (!clickedRoom.visited) {
             clickedRoom.visited = true
-            roomView.setBackgroundResource(R.drawable.n606024)
 
             when (clickedRoom.kind) {
                 RoomKind.NORMAL, RoomKind.BOSS -> {
@@ -128,8 +127,17 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun endGame(win: Boolean) {
-        // TODO
-        Toast.makeText(this, "Win: $win", Toast.LENGTH_SHORT).show()
+        val resultIntent = Intent(this, EndActivity::class.java)
+        val resultInfo = Bundle()
+        if (!win) {
+            resultInfo.putBoolean("resultInfo", false)
+            resultIntent.putExtras(resultInfo)
+            startActivity(resultIntent)
+        } else {
+            resultInfo.putBoolean("resultInfo", true)
+            resultIntent.putExtras(resultInfo)
+            startActivity(resultIntent)
+        }
     }
 
     /*
@@ -145,27 +153,6 @@ class GameActivity : AppCompatActivity() {
     private fun redrawStage() {
         mapContainer.removeAllViews()
         viewId2Idx.clear()
-        // drew paths
-        // TODO：画线
-        val hlineView = View(this)
-        hlineView.setBackgroundColor(Color.parseColor("#000000"))
-        hlineView.layoutParams = FrameLayout.LayoutParams(
-            dpToPixel(RoomInterval.toDouble()).toInt(),
-            dpToPixel(1.toDouble()).toInt()
-        )
-        val vlineView = View(this)
-        vlineView.setBackgroundColor(Color.parseColor("#000000"))
-        vlineView.layoutParams = FrameLayout.LayoutParams(
-            dpToPixel(1.toDouble()).toInt(),
-            dpToPixel(RoomInterval.toDouble()).toInt()
-        )
-
-//        fun drawPaths() {
-//            val hlineView = View(this)
-//            hlineView.setBackgroundColor(Color.parseColor("#000000"))
-//            val vlineView = View(this)
-//            vlineView.setBackgroundColor(Color.parseColor("#000000"))
-//        }
 
         stage.rooms.forEachIndexed { idx, room ->
             val button = Button(this)
@@ -173,20 +160,6 @@ class GameActivity : AppCompatActivity() {
                 dpToPixel(RoomDisplaySize.toDouble()).toInt(),
                 dpToPixel(RoomDisplaySize.toDouble()).toInt()
             )
-            // www
-//            button.setBackgroundResource(R.drawable.n606024)
-            if (player.roomIdx == idx) {
-                button.setBackgroundResource(R.drawable.player)
-            } else {
-                button.text = "" // 其实我觉得这行就可以删了?
-            }
-            // draw paths
-            val playerRoom = stage.rooms[player.roomIdx]
-            val newRoom = stage.rooms[idx]
-//            if (playerRoom.canReach(clickedRoom, stage)) {
-//                mapContainer.addView(hlineView)
-//                mapContainer.addView(vlineView)
-//            }
 
             // get the width and height of mapContainer, center buttons
             mapContainer.viewTreeObserver.addOnGlobalLayoutListener(
@@ -216,42 +189,33 @@ class GameActivity : AppCompatActivity() {
                 }
             )
 
-//            // set background color of buttons
-//            when (room.kind) {
-//                RoomKind.BOSS -> button.setBackgroundColor(Color.parseColor("#f6416c"))
-//                RoomKind.CHEST -> button.setBackgroundColor(Color.parseColor("#ffde7d"))
-//                else -> button.setBackgroundColor(Color.parseColor("#f8f3d4"))
-//            }
-            // set background color of buttons
-            when (room.kind) {
+            // draw buttons
+            val playerRoom = stage.rooms[player.roomIdx]
+            val newRoom = stage.rooms[idx]
+
+            when (newRoom.kind) {
                 RoomKind.BOSS -> button.setBackgroundResource(R.drawable.boss606024)
                 RoomKind.CHEST -> button.setBackgroundResource(R.drawable.chest606024)
-                else -> button.setBackgroundResource(R.drawable.lock606024)
+                else ->
+                    if (!newRoom.visited) {
+                        if (playerRoom.canReach(newRoom, stage)) {
+                            button.setBackgroundResource(R.drawable.n606024)
+                        } else { button.setBackgroundResource(R.drawable.lock606024) }
+                    } else {
+                        button.setBackgroundResource(R.drawable.n606024)
+                    }
             }
-            if (playerRoom.canReach(newRoom, stage)) {
-                button.setBackgroundResource(R.drawable.n606024)
+
+            if (player.roomIdx == idx) {
+                button.setBackgroundResource(R.drawable.player)
+                // 测试第一个房间的visited属性是什么，结果测出来第一个房间默认是没去过的。
+                Log.d("??", "${playerRoom.visited}")
             }
-            if (newRoom.visited) {
-                button.setBackgroundResource(R.drawable.n606024)
-            }
+
             // use generateViewId() to avoid conflicts (hopefully)
             button.id = View.generateViewId()
             viewId2Idx[button.id] = idx
             mapContainer.addView(button)
-
-//            if (playerRoom.canReach(newRoom, stage)) {
-//                if ( room.x < 5) {
-//                    Log.d("cccc", "xiao yu 5")
-//                    mapContainer.addView(hlineView)
-//                    hlineView.x = button.x + dpToPixel(RoomDisplaySize.toDouble()).toInt()
-//                    hlineView.y = button.y + dpToPixel(RoomDisplaySize.toDouble()).toInt() / 2
-//                }
-// //                if ( room.x < 5){
-// //                    mapContainer.addView(vlineView)
-// //                    vlineView.x = button.x + dpToPixel(RoomDisplaySize.toDouble()).toInt() / 2
-// //                    vlineView.y = button.y + dpToPixel(RoomDisplaySize.toDouble()).toInt()
-// //                }
-//            }
         }
     }
 
