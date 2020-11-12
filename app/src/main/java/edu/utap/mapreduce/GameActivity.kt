@@ -2,6 +2,7 @@ package edu.utap.mapreduce
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -73,7 +74,6 @@ class GameActivity : AppCompatActivity() {
 
         if (!clickedRoom.visited) {
             clickedRoom.visited = true
-
             when (clickedRoom.kind) {
                 RoomKind.NORMAL, RoomKind.BOSS -> {
                     val result = BattleSimulator.oneOnOne(player, clickedRoom.enemy!!, stage)
@@ -217,7 +217,6 @@ class GameActivity : AppCompatActivity() {
             mapContainer.addView(button)
         }
     }
-
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -227,6 +226,7 @@ class GameActivity : AppCompatActivity() {
             this,
             {
                 player = it
+
                 hpV.text = "HP: ${it.hp}"
                 atkV.text = "ATK: ${it.atk}"
                 defV.text = "DEF: ${it.def}"
@@ -244,12 +244,6 @@ class GameActivity : AppCompatActivity() {
                     itemListAdapter = ItemListAdapter(it)
                     itemsContainer.adapter = itemListAdapter
                     itemsContainer.layoutManager = LinearLayoutManager(this)
-                }
-
-                // TODO: the end game event should not happen here.
-                if (it.hp <= 0) {
-                    val intent = Intent(this, EndActivity::class.java)
-                    startActivity(intent)
                 }
             }
         )
