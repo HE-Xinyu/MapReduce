@@ -45,6 +45,7 @@ class GameActivity : AppCompatActivity() {
     companion object {
         private const val RoomDisplaySize = 60
         private const val RoomInterval = 15
+        private val SwitchTextList = listOf("SHOW ROOM DETAIL", "SHOW STAGE")
     }
 
     private fun dpToPixel(dp: Double): Double {
@@ -69,15 +70,13 @@ class GameActivity : AppCompatActivity() {
             return
         }
 
-        val switchTextList = listOf("SHOW ROOM DETAIL", "SHOW STAGE")
-
         when (button.text) {
-            switchTextList[0] -> drawRoomDetail(stage.rooms[player.roomIdx])
-            switchTextList[1] -> redrawStage(force = true)
+            SwitchTextList[0] -> drawRoomDetail(stage.rooms[player.roomIdx])
+            SwitchTextList[1] -> redrawStage(force = true)
             else -> Log.e("aaa", "Impossible button text ${button.text}")
         }
 
-        button.text = switchTextList[1 - switchTextList.indexOf(button.text)]
+//        button.text = SwitchTextList[1 - SwitchTextList.indexOf(button.text)]
     }
 
     private fun onRoomClick(roomView: View) {
@@ -110,7 +109,7 @@ class GameActivity : AppCompatActivity() {
 
             player.roomIdx = viewId2Idx[roomView.id]!!
             player.status = PlayerStatus.INTERACT_WITH_ROOM
-            switchV.callOnClick()
+            drawRoomDetail(clickedRoom)
 
 //            when (clickedRoom.kind) {
 //                RoomKind.NORMAL, RoomKind.BOSS -> {
@@ -164,6 +163,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun drawRoomDetail(room: Room) {
+        switchV.text = SwitchTextList[1]
         mapContainer.removeAllViews()
         // only initialize detail recycler view once to be a little more efficient
         if (!this::roomDetailV.isInitialized) {
@@ -209,6 +209,8 @@ class GameActivity : AppCompatActivity() {
         if (player.status != PlayerStatus.INTERACT_WITH_STAGE && !force) {
             return
         }
+
+        switchV.text = SwitchTextList[0]
         mapContainer.removeAllViews()
         viewId2Idx.clear()
         stage.rooms.forEachIndexed {

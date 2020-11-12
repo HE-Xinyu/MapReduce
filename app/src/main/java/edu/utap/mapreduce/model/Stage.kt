@@ -16,7 +16,12 @@ class Stage(var curStage: Int) {
         const val MaxStages = 3
     }
 
-    fun doInit() {
+    private fun doInit() {
+        rooms.clear()
+        paths = List(n * n) {
+            emptySet<Room>().toMutableSet()
+        }
+
         // 1. initialize rooms
         for (i in 0 until n) {
             for (j in 0 until n) {
@@ -42,10 +47,13 @@ class Stage(var curStage: Int) {
          */
         for (thisRoom in rooms) {
             for (otherRoom in rooms) {
-                if (thisRoom.isAdjacent(otherRoom)) {
+                // prevent randomization twice
+                if (thisRoom.isAdjacent(otherRoom) && thisRoom.id < otherRoom.id) {
                     if (Random.nextDouble() < pathProb) {
                         paths[thisRoom.id].add(otherRoom)
                         paths[otherRoom.id].add(thisRoom)
+                    } else {
+                        Log.d("aaa", "No paths: ${thisRoom.id}, ${otherRoom.id}")
                     }
                 }
             }
