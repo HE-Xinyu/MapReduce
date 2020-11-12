@@ -6,7 +6,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -59,11 +59,10 @@ class GameActivity : AppCompatActivity() {
             if (playerRoom.isAdjacent(clickedRoom)) {
                 // use 'paths' to make a room reachable
                 if (player.numPaths > 0) {
-                    // TODO:如果想去的房间被判定和玩家所在的房间相邻，那应该已经是可以去的了呀？为啥还会出现没有路这种情况？
-                    // 没确认想法正不正确，就先没测试
                     player.numPaths -= 1
                     stage.paths[playerRoom.id].add(clickedRoom)
                     stage.paths[clickedRoom.id].add(playerRoom)
+                    Toast.makeText(this, "You can go to the room now!", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "No more paths", Toast.LENGTH_SHORT).show()
                 }
@@ -153,14 +152,6 @@ class GameActivity : AppCompatActivity() {
     private fun redrawStage() {
         mapContainer.removeAllViews()
         viewId2Idx.clear()
-        // drew paths
-        // TODO：画线
-//        fun drawPaths() {
-//            val bitmap = Bitmap.createBitmap(1080, 1589, Bitmap.Config.ARGB_4444)
-//            val canvas = Canvas()
-//            val paint = Paint()
-//            paint.color = Color.BLACK
-//        }
 
         stage.rooms.forEachIndexed { idx, room ->
             val button = Button(this)
@@ -168,32 +159,16 @@ class GameActivity : AppCompatActivity() {
                 dpToPixel(RoomDisplaySize.toDouble()).toInt(),
                 dpToPixel(RoomDisplaySize.toDouble()).toInt()
             )
-            if (player.roomIdx == idx) {
-                button.text = "P"
-                // TODO: 玩家当前所在的房间背景颜色没有改，找出来为什么
-                button.setBackgroundColor(Color.parseColor("#00b8a9"))
-                // TODO: 判定房间的相对位置没想明白
-//                val bitmap = Bitmap.createBitmap(1080, 1589, Bitmap.Config.ARGB_4444)
-//                val canvas = Canvas()
-//                val paint = Paint()
-//                paint.color = Color.BLACK
-//                val startX = button.x + dpToPixel(RoomDisplaySize.toDouble()).toInt()
-//                val startY = button.y + dpToPixel(RoomDisplaySize.toDouble()/2).toInt()
-//                canvas.drawLine(startX, startY, 4000f, 400f, paint)
-// //                drawPaths()
-            } else {
-                button.text = ""
-            }
 
             // get the width and height of mapContainer, center buttons
             mapContainer.viewTreeObserver.addOnGlobalLayoutListener(
                 object :
-                    OnGlobalLayoutListener {
+                    ViewTreeObserver.OnGlobalLayoutListener {
                     override fun onGlobalLayout() {
                         mapContainer.viewTreeObserver.removeOnGlobalLayoutListener(this)
                         val h = mapContainer.height
                         val w = mapContainer.width
-// h = 1589, w = 1080
+                        // h = 1589, w = 1080
                         val paddingX = (w / 2 - dpToPixel(180.toDouble())).toInt()
                         val paddingY = (h / 2 - dpToPixel(180.toDouble())).toInt()
                         button.x = paddingX + mapContainer.x + room.x * (
@@ -212,12 +187,30 @@ class GameActivity : AppCompatActivity() {
                     }
                 }
             )
-            // set background color of buttons
-            when (room.kind) {
-                RoomKind.BOSS -> button.setBackgroundColor(Color.parseColor("#f6416c"))
-                RoomKind.CHEST -> button.setBackgroundColor(Color.parseColor("#ffde7d"))
-                else -> button.setBackgroundColor(Color.parseColor("#f8f3d4"))
+
+            // draw buttons
+            val playerRoom = stage.rooms[player.roomIdx]
+            val newRoom = stage.rooms[idx]
+
+            when (newRoom.kind) {
+                RoomKind.BOSS -> button.setBackgroundResource(R.drawable.boss606024)
+                RoomKind.CHEST -> button.setBackgroundResource(R.drawable.chest606024)
+                else ->
+                    if (!newRoom.visited) {
+                        if (playerRoom.canReach(newRoom, stage)) {
+                            button.setBackgroundResource(R.drawable.n606024)
+                        } else { button.setBackgroundResource(R.drawable.lock606024) }
+                    } else {
+                        button.setBackgroundResource(R.drawable.n606024)
+                    }
             }
+
+            if (player.roomIdx == idx) {
+                button.setBackgroundResource(R.drawable.player)
+                // 测试第一个房间的visited属性是什么，结果测出来第一个房间默认是没去过的。
+                Log.d("??", "${playerRoom.visited}")
+            }
+
             // use generateViewId() to avoid conflicts (hopefully)
             button.id = View.generateViewId()
             viewId2Idx[button.id] = idx
