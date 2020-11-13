@@ -1,7 +1,6 @@
 package edu.utap.mapreduce
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -11,11 +10,12 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import edu.utap.mapreduce.model.BattleResult
-import edu.utap.mapreduce.model.BattleSimulator
+import androidx.recyclerview.widget.RecyclerView
 import edu.utap.mapreduce.model.GameViewModel
 import edu.utap.mapreduce.model.Item
 import edu.utap.mapreduce.model.Player
+import edu.utap.mapreduce.model.PlayerStatus
+import edu.utap.mapreduce.model.Room
 import edu.utap.mapreduce.model.RoomKind
 import edu.utap.mapreduce.model.Stage
 import kotlinx.android.synthetic.main.activity_game.atkV
@@ -29,12 +29,16 @@ import kotlinx.android.synthetic.main.activity_game.mapContainer
 import kotlinx.android.synthetic.main.activity_game.pathsV
 import kotlinx.android.synthetic.main.activity_game.spdV
 import kotlinx.android.synthetic.main.activity_game.stageV
+import kotlinx.android.synthetic.main.activity_game.switchV
 
 class GameActivity : AppCompatActivity() {
     private val model: GameViewModel by viewModels()
     private lateinit var stage: Stage
     private lateinit var player: Player
-    private lateinit var itemListAdapter: ItemListAdapter
+    private lateinit var obtainedItemListAdapter: ObtainedItemListAdapter
+    private lateinit var enemyListAdapter: EnemyListAdapter
+    private lateinit var chestRoomItemListAdapter: ChestRoomItemListAdapter
+    private lateinit var roomDetailV: RecyclerView
 
     // room view id -> room index
     private var viewId2Idx = mutableMapOf<Int, Int>()
@@ -43,67 +47,83 @@ class GameActivity : AppCompatActivity() {
     companion object {
         private const val RoomDisplaySize = 60
         private const val RoomInterval = 15
+        private val SwitchTextList = listOf("SHOW ROOM DETAIL", "SHOW STAGE")
     }
 
     private fun dpToPixel(dp: Double): Double {
         return dp * resources.displayMetrics.density
     }
 
+    /*
+        Switch the display of main container when the player is interacting with the room.
+
+        It is a little bit hard to read now, because the behavior is strangely controlled by the UI
+        i.e. what the button currently displays. The tradeoff is that there is no redundant
+        information.
+     */
+    private fun onSwitchButtonClick(button: View) {
+        button as Button
+        if (player.status == PlayerStatus.INTERACT_WITH_STAGE) {
+            Toast.makeText(
+                this,
+                "There is no room detail; please interact with the stage",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        when (button.text) {
+            SwitchTextList[0] -> drawRoomDetail(stage.rooms[player.roomIdx])
+            SwitchTextList[1] -> redrawStage(force = true)
+            else -> Log.e("aaa", "Impossible button text ${button.text}")
+        }
+
+//        button.text = SwitchTextList[1 - SwitchTextList.indexOf(button.text)]
+    }
+
     private fun onRoomClick(roomView: View) {
         val playerRoom = stage.rooms[player.roomIdx]
         val clickedRoom = stage.rooms[viewId2Idx[roomView.id]!!]
+
+        if (clickedRoom.visited) {
+            Toast.makeText(this, "You have visited this room", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // TODO: as we have many statuses, we should use a when clause.
+        if (player.status == PlayerStatus.INTERACT_WITH_ROOM) {
+            Toast.makeText(
+                this,
+                "Please finish the interaction of the current room",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
 
         if (!playerRoom.canReach(clickedRoom, stage)) {
             Toast.makeText(this, "Room unreachable", Toast.LENGTH_SHORT).show()
             return
         }
 
-        if (!clickedRoom.visited) {
-            clickedRoom.visited = true
-
-            when (clickedRoom.kind) {
-                RoomKind.NORMAL, RoomKind.BOSS -> {
-                    val result = BattleSimulator.oneOnOne(player, clickedRoom.enemy!!, stage)
-                    if (result == BattleResult.LOSE) {
-                        endGame(false)
-                    }
-                    if (clickedRoom.kind == RoomKind.BOSS) {
-                        if (stage.curStage == Stage.MaxStages) {
-                            endGame(true)
-                        } else {
-                            // player gets past the current stage, advance to the next one.
-                            stage = Stage(stage.curStage + 1)
-                        }
-                    }
-                }
-                RoomKind.CHEST -> {
-                    if (player.numKeys == 0) {
-                        Toast.makeText(this, "You don't have a key.", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this, "You used a key.", Toast.LENGTH_SHORT).show()
-                        player.numKeys--
-
-                        val item = Item.fetchItem(player.obtainedItems)
-                        if (item != null) {
-                            player.obtainedItems.add(item)
-                        } else {
-                            Toast.makeText(
-                                this,
-                                "You have exhausted the item pool",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
-                else -> {
-                    Toast.makeText(
-                        this,
-                        "Unhandled room kind ${clickedRoom.kind}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
+        val (success, msg) = clickedRoom.tryEnter(player)
+        if (msg.isNotEmpty()) {
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
+        if (!success) {
+            return
+        }
+
+        player.roomIdx = viewId2Idx[roomView.id]!!
+
+        val result = clickedRoom.tryQuickAccess(player)
+        if (!result.first) {
+            Toast.makeText(this, result.second, Toast.LENGTH_SHORT).show()
+        } else {
+            player.status = PlayerStatus.INTERACT_WITH_ROOM
+            drawRoomDetail(clickedRoom)
+        }
+
+        clickedRoom.visited = true
 
         player.roomIdx = viewId2Idx[roomView.id]!!
 
@@ -117,6 +137,54 @@ class GameActivity : AppCompatActivity() {
         Toast.makeText(this, "Win: $win", Toast.LENGTH_SHORT).show()
     }
 
+    private fun drawRoomDetail(room: Room) {
+        switchV.text = SwitchTextList[1]
+        mapContainer.removeAllViews()
+        // only initialize detail recycler view once to be a little more efficient
+        if (!this::roomDetailV.isInitialized) {
+            roomDetailV = RecyclerView(this)
+            roomDetailV.layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+            roomDetailV.layoutManager = LinearLayoutManager(this)
+        }
+
+        when (room.kind) {
+            RoomKind.NORMAL, RoomKind.BOSS -> {
+                if (this::enemyListAdapter.isInitialized) {
+                    enemyListAdapter.player = player
+                    enemyListAdapter.room = room
+                    enemyListAdapter.stage = stage
+                    enemyListAdapter.notifyDataSetChanged()
+                } else {
+                    enemyListAdapter = EnemyListAdapter(player, room, stage, model)
+                    roomDetailV.adapter = enemyListAdapter
+                }
+            }
+            RoomKind.CHEST -> {
+                val itemList = listOf(Item.fetchItem(player.obtainedItems)!!)
+                if (this::chestRoomItemListAdapter.isInitialized) {
+                    chestRoomItemListAdapter.player = player
+                    chestRoomItemListAdapter.stage = stage
+                    chestRoomItemListAdapter.items = itemList
+                    chestRoomItemListAdapter.notifyDataSetChanged()
+                } else {
+                    chestRoomItemListAdapter = ChestRoomItemListAdapter(
+                        player,
+                        stage,
+                        itemList,
+                        model
+                    )
+                    roomDetailV.adapter = chestRoomItemListAdapter
+                }
+            }
+            else -> {
+            }
+        }
+        mapContainer.addView(roomDetailV)
+    }
+
     /*
         Redraw the stage.
 
@@ -127,7 +195,12 @@ class GameActivity : AppCompatActivity() {
             https://developer.android.com/reference/kotlin/android/widget/AdapterView
      */
     @SuppressLint("SetTextI18n")
-    private fun redrawStage() {
+    private fun redrawStage(force: Boolean = false) {
+        if (player.status != PlayerStatus.INTERACT_WITH_STAGE && !force) {
+            return
+        }
+
+        switchV.text = SwitchTextList[0]
         mapContainer.removeAllViews()
         viewId2Idx.clear()
         stage.rooms.forEachIndexed {
@@ -182,19 +255,20 @@ class GameActivity : AppCompatActivity() {
                 chestsV.text = "Chests: ${it.numChests}"
                 coinsV.text = "Coins: ${it.numCoins}"
 
-                if (this::itemListAdapter.isInitialized) {
-                    itemListAdapter.player = it
-                    itemListAdapter.notifyDataSetChanged()
+                if (this::obtainedItemListAdapter.isInitialized) {
+                    obtainedItemListAdapter.player = it
+                    obtainedItemListAdapter.notifyDataSetChanged()
                 } else {
-                    itemListAdapter = ItemListAdapter(it)
-                    itemsContainer.adapter = itemListAdapter
+                    obtainedItemListAdapter = ObtainedItemListAdapter(it)
+                    itemsContainer.adapter = obtainedItemListAdapter
                     itemsContainer.layoutManager = LinearLayoutManager(this)
                 }
 
-                // TODO: the end game event should not happen here.
-                if (it.hp <= 0) {
-                    val intent = Intent(this, EndActivity::class.java)
-                    startActivity(intent)
+                if (player.status == PlayerStatus.WIN) {
+                    endGame(true)
+                }
+                if (player.status == PlayerStatus.LOSE) {
+                    endGame(false)
                 }
             }
         )
@@ -204,8 +278,14 @@ class GameActivity : AppCompatActivity() {
             {
                 stage = it
                 stageV.text = "Stage ${it.curStage}"
+
+                switchV.text = "SHOW ROOM DETAIL"
                 redrawStage()
             }
         )
+
+        switchV.setOnClickListener {
+            onSwitchButtonClick(it)
+        }
     }
 }

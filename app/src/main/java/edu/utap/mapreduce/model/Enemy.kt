@@ -1,8 +1,15 @@
 package edu.utap.mapreduce.model
 
-class Enemy(
-    hp: Int,
-    atk: Int,
-    def: Int,
-    spd: Int,
-) : CombatUnit(hp, atk, def, spd)
+import edu.utap.mapreduce.IAbleToFight
+
+data class Enemy(
+    override var hp: Int,
+    var atk: Int,
+    var def: Int,
+    var spd: Int,
+    var name: String,
+) : IAbleToFight
+
+val testEnemy = Enemy(10, 10, 10, 10, "test enemy name")
+
+val AllEnemies = listOf(testEnemy)
