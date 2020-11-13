@@ -58,4 +58,20 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
             }
         }
     }
+
+    fun tryQuickAccess(player: Player): Pair<Boolean, String> {
+        // NOTE: when the size of item pool is one, should we take the item for the player?
+        return when (kind) {
+            RoomKind.CHEST -> {
+                if (AllItems.size == player.obtainedItems.size) {
+                    Pair(false, "You have exhausted the item pool")
+                } else {
+                    Pair(true, "")
+                }
+            }
+            else -> {
+                Pair(true, "")
+            }
+        }
+    }
 }

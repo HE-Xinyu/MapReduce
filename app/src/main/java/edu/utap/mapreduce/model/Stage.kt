@@ -6,7 +6,7 @@ import kotlin.random.Random
 class Stage(var curStage: Int) {
     // note: if we decide to change n as player progress, the rooms and paths need to be lateinit.
     private val n: Int = 5
-    private val pathProb = 0.9
+    private val pathProb = 1.0
     var rooms = emptyList<Room>().toMutableList()
     var paths = List(n * n) {
         emptySet<Room>().toMutableSet()

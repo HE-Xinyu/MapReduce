@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import edu.utap.mapreduce.model.GameViewModel
+import edu.utap.mapreduce.model.Item
 import edu.utap.mapreduce.model.Player
 import edu.utap.mapreduce.model.PlayerStatus
 import edu.utap.mapreduce.model.Room
@@ -34,8 +35,9 @@ class GameActivity : AppCompatActivity() {
     private val model: GameViewModel by viewModels()
     private lateinit var stage: Stage
     private lateinit var player: Player
-    private lateinit var itemListAdapter: ItemListAdapter
+    private lateinit var obtainedItemListAdapter: ObtainedItemListAdapter
     private lateinit var enemyListAdapter: EnemyListAdapter
+    private lateinit var chestRoomItemListAdapter: ChestRoomItemListAdapter
     private lateinit var roomDetailV: RecyclerView
 
     // room view id -> room index
@@ -83,6 +85,11 @@ class GameActivity : AppCompatActivity() {
         val playerRoom = stage.rooms[player.roomIdx]
         val clickedRoom = stage.rooms[viewId2Idx[roomView.id]!!]
 
+        if (clickedRoom.visited) {
+            Toast.makeText(this, "You have visited this room", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         // TODO: as we have many statuses, we should use a when clause.
         if (player.status == PlayerStatus.INTERACT_WITH_ROOM) {
             Toast.makeText(
@@ -98,62 +105,30 @@ class GameActivity : AppCompatActivity() {
             return
         }
 
-        if (!clickedRoom.visited) {
-            val (success, msg) = clickedRoom.tryEnter(player)
-            if (msg.isNotEmpty()) {
-                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
-            }
-            if (!success) {
-                return
-            }
-
-            player.roomIdx = viewId2Idx[roomView.id]!!
-            player.status = PlayerStatus.INTERACT_WITH_ROOM
-            drawRoomDetail(clickedRoom)
-
-//            when (clickedRoom.kind) {
-//                RoomKind.NORMAL, RoomKind.BOSS -> {
-//                    val result = BattleSimulator.oneOnOne(player, clickedRoom.enemies!![0], stage)
-//                    if (result == BattleResult.LOSE) {
-//                        endGame(false)
-//                    }
-//                    if (clickedRoom.kind == RoomKind.BOSS) {
-//                        if (stage.curStage == Stage.MaxStages) {
-//                            endGame(true)
-//                        } else {
-//                            // player gets past the current stage, advance to the next one.
-//                            stage = Stage(stage.curStage + 1)
-//                        }
-//                    }
-//                }
-//                RoomKind.CHEST -> {
-//                        val item = Item.fetchItem(player.obtainedItems)
-//                        if (item != null) {
-//                            player.obtainedItems.add(item)
-//                        } else {
-//                            Toast.makeText(
-//                                this,
-//                                "You have exhausted the item pool",
-//                                Toast.LENGTH_SHORT
-//                            ).show()
-//                        }
-//                    }
-//                }
-//                else -> {
-//                    Toast.makeText(
-//                        this,
-//                        "Unhandled room kind ${clickedRoom.kind}",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                }
-//            }
-            clickedRoom.visited = true
+        val (success, msg) = clickedRoom.tryEnter(player)
+        if (msg.isNotEmpty()) {
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+        }
+        if (!success) {
+            return
         }
 
         player.roomIdx = viewId2Idx[roomView.id]!!
 
+        val result = clickedRoom.tryQuickAccess(player)
+        if (!result.first) {
+            Toast.makeText(this, result.second, Toast.LENGTH_SHORT).show()
+        } else {
+            player.status = PlayerStatus.INTERACT_WITH_ROOM
+            drawRoomDetail(clickedRoom)
+        }
+
+        clickedRoom.visited = true
+
+        player.roomIdx = viewId2Idx[roomView.id]!!
+
         model.setPlayer(player)
-//        model.setStage(stage)
+        model.setStage(stage)
         Log.d("aaa", "clicking button (${roomView.x}, ${roomView.y})")
     }
 
@@ -188,6 +163,21 @@ class GameActivity : AppCompatActivity() {
                 }
             }
             RoomKind.CHEST -> {
+                val itemList = listOf(Item.fetchItem(player.obtainedItems)!!)
+                if (this::chestRoomItemListAdapter.isInitialized) {
+                    chestRoomItemListAdapter.player = player
+                    chestRoomItemListAdapter.stage = stage
+                    chestRoomItemListAdapter.items = itemList
+                    chestRoomItemListAdapter.notifyDataSetChanged()
+                } else {
+                    chestRoomItemListAdapter = ChestRoomItemListAdapter(
+                        player,
+                        stage,
+                        itemList,
+                        model
+                    )
+                    roomDetailV.adapter = chestRoomItemListAdapter
+                }
             }
             else -> {
             }
@@ -265,12 +255,12 @@ class GameActivity : AppCompatActivity() {
                 chestsV.text = "Chests: ${it.numChests}"
                 coinsV.text = "Coins: ${it.numCoins}"
 
-                if (this::itemListAdapter.isInitialized) {
-                    itemListAdapter.player = it
-                    itemListAdapter.notifyDataSetChanged()
+                if (this::obtainedItemListAdapter.isInitialized) {
+                    obtainedItemListAdapter.player = it
+                    obtainedItemListAdapter.notifyDataSetChanged()
                 } else {
-                    itemListAdapter = ItemListAdapter(it)
-                    itemsContainer.adapter = itemListAdapter
+                    obtainedItemListAdapter = ObtainedItemListAdapter(it)
+                    itemsContainer.adapter = obtainedItemListAdapter
                     itemsContainer.layoutManager = LinearLayoutManager(this)
                 }
 
