@@ -188,27 +188,24 @@ class GameActivity : AppCompatActivity() {
                 }
             )
 
-            // draw buttons
+            // draw buttons based on RoomKind
             val playerRoom = stage.rooms[player.roomIdx]
             val newRoom = stage.rooms[idx]
 
-            when (newRoom.kind) {
-                RoomKind.BOSS -> button.setBackgroundResource(R.drawable.boss606024)
-                RoomKind.CHEST -> button.setBackgroundResource(R.drawable.chest606024)
-                else ->
-                    if (!newRoom.visited) {
-                        if (playerRoom.canReach(newRoom, stage)) {
-                            button.setBackgroundResource(R.drawable.n606024)
-                        } else { button.setBackgroundResource(R.drawable.lock606024) }
-                    } else {
-                        button.setBackgroundResource(R.drawable.n606024)
+            if (!newRoom.visited) {
+                if (playerRoom.canReach(newRoom, stage)) {
+                    when (newRoom.kind) {
+                        RoomKind.BOSS -> button.setBackgroundResource(R.drawable.boss606024)
+                        RoomKind.CHEST -> button.setBackgroundResource(R.drawable.chest606024)
+                        else -> button.setBackgroundResource(R.drawable.n606024)
                     }
+                } else { button.setBackgroundColor(Color.parseColor("#ffde7d")) }
+            } else {
+                button.setBackgroundColor(Color.parseColor("#00b8a9"))
             }
 
             if (player.roomIdx == idx) {
                 button.setBackgroundResource(R.drawable.player)
-                // 测试第一个房间的visited属性是什么，结果测出来第一个房间默认是没去过的。
-                Log.d("??", "${playerRoom.visited}")
             }
 
             // use generateViewId() to avoid conflicts (hopefully)
