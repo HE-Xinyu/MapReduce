@@ -9,7 +9,7 @@ Next-gen rogue-like game!
 - Shop
 - Award system
 - Enemy Pool
-- Activated Items
+
 - Manual
 - More to come...
 
@@ -22,3 +22,4 @@ Next-gen rogue-like game!
 - Chest Room
 - Keys
 - Paths
+- Activated Items

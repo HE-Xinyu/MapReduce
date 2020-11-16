@@ -1,11 +1,21 @@
 package edu.utap.mapreduce.model
 
+import edu.utap.mapreduce.IAbleToFight
+
+enum class PlayerStatus {
+    WIN,
+    LOSE,
+    INTERACT_WITH_STAGE,
+    INTERACT_WITH_ROOM,
+    INTERACT_WITH_ITEM,
+}
+
 class Player(
-    hp: Int,
-    atk: Int,
-    def: Int,
-    spd: Int,
-) : CombatUnit(hp, atk, def, spd) {
+    override var hp: Int,
+    var atk: Int,
+    var def: Int,
+    var spd: Int,
+) : IAbleToFight {
     var roomIdx = -1
     /*
         The items owned by the player.
@@ -16,4 +26,12 @@ class Player(
     var numPaths = 99
     var numCoins = 99
     var numChests = 99
+
+    var status = PlayerStatus.INTERACT_WITH_STAGE
+
+    // TODO: need a field to indicate that the player is interacting in a room,
+    //       and hence his/her items cannot be activated.
+
+    // TODO: need a field to indicate the item that the player is activating,
+    //      and hence the click behavior of a room may change.
 }

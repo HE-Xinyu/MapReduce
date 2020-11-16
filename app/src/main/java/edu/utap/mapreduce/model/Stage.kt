@@ -1,11 +1,12 @@
 package edu.utap.mapreduce.model
 
+import android.util.Log
 import kotlin.random.Random
 
 class Stage(var curStage: Int) {
     // note: if we decide to change n as player progress, the rooms and paths need to be lateinit.
     private val n: Int = 5
-    private val pathProb = 0.9
+    private val pathProb = 1.0
     var rooms = emptyList<Room>().toMutableList()
     var paths = List(n * n) {
         emptySet<Room>().toMutableSet()
@@ -15,7 +16,12 @@ class Stage(var curStage: Int) {
         const val MaxStages = 3
     }
 
-    init {
+    private fun doInit() {
+        rooms.clear()
+        paths = List(n * n) {
+            emptySet<Room>().toMutableSet()
+        }
+
         // 1. initialize rooms
         for (i in 0 until n) {
             for (j in 0 until n) {
@@ -41,13 +47,30 @@ class Stage(var curStage: Int) {
          */
         for (thisRoom in rooms) {
             for (otherRoom in rooms) {
-                if (thisRoom.isAdjacent(otherRoom)) {
+                // prevent randomization twice
+                if (thisRoom.isAdjacent(otherRoom) && thisRoom.id < otherRoom.id) {
                     if (Random.nextDouble() < pathProb) {
                         paths[thisRoom.id].add(otherRoom)
                         paths[otherRoom.id].add(thisRoom)
+                    } else {
+                        Log.d("aaa", "No paths: ${thisRoom.id}, ${otherRoom.id}")
                     }
                 }
             }
         }
+    }
+
+    init {
+        doInit()
+    }
+
+    fun advance() {
+        if (curStage == MaxStages) {
+            Log.e("aaa", "reached maximum stage! cannot advance")
+            return
+        }
+
+        curStage++
+        doInit()
     }
 }

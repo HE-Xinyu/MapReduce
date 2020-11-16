@@ -13,13 +13,16 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
     /*
         Currently every room contains one enemy
 
-        TODO: it should be a list if we decide to add more enemies in one room
+        TODO: randomly chosen from AllEnemies
      */
-    var enemy: Enemy? = Enemy(10, 10, 10, 10)
+    var enemies: MutableList<Enemy>? = listOf(testEnemy.copy()).toMutableList()
 
     /*
         Whether the room is visited by the user.
-        Currently if visited, then it means that the enemy is already defeated.
+
+        Actually `visited` is not the most accurate representation. If a room is visited, it really
+        means that the player has finished the required interaction of it, e.g. defeat all the
+        enemies, collect an item.
      */
     var visited = false
 
@@ -38,5 +41,37 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
      */
     fun canReach(other: Room, stage: Stage): Boolean {
         return other.visited || stage.paths[id].contains(other)
+    }
+
+    fun tryEnter(player: Player): Pair<Boolean, String> {
+        return when (kind) {
+            RoomKind.NORMAL, RoomKind.BOSS -> {
+                Pair(true, "")
+            }
+            RoomKind.CHEST -> {
+                if (player.numKeys > 0) {
+                    player.numKeys--
+                    Pair(true, "You used a key.")
+                } else {
+                    Pair(false, "You don't have a key.")
+                }
+            }
+        }
+    }
+
+    fun tryQuickAccess(player: Player): Pair<Boolean, String> {
+        // NOTE: when the size of item pool is one, should we take the item for the player?
+        return when (kind) {
+            RoomKind.CHEST -> {
+                if (AllItems.size == player.obtainedItems.size) {
+                    Pair(false, "You have exhausted the item pool")
+                } else {
+                    Pair(true, "")
+                }
+            }
+            else -> {
+                Pair(true, "")
+            }
+        }
     }
 }
