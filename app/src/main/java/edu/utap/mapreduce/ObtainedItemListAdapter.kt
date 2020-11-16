@@ -6,20 +6,32 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import edu.utap.mapreduce.model.GameViewModel
 import edu.utap.mapreduce.model.Item
 import edu.utap.mapreduce.model.Player
+import edu.utap.mapreduce.model.Stage
 
-class ObtainedItemListAdapter(var player: Player) :
+class ObtainedItemListAdapter(var player: Player, var stage: Stage, val model: GameViewModel) :
     RecyclerView.Adapter<ObtainedItemListAdapter.VH>() {
     inner class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nameView = itemView.findViewById<TextView>(R.id.itemNameV)
+        private val rechargeView = itemView.findViewById<TextView>(R.id.itemRechargeV)
 
         fun bind(item: Item) {
             nameView.text = item.name
+            rechargeView.text = item.displayRecharge()
 
             itemView.setOnLongClickListener {
                 Toast.makeText(it.context, item.desc, Toast.LENGTH_SHORT).show()
                 return@setOnLongClickListener true
+            }
+
+            itemView.setOnClickListener {
+                val msg = item.onActivate(player, stage)
+                if (msg.isNotEmpty()) {
+                    Toast.makeText(it.context, msg, Toast.LENGTH_SHORT).show()
+                }
+                model.setPlayer(player)
             }
         }
     }

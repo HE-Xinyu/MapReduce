@@ -1,5 +1,6 @@
 package edu.utap.mapreduce
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,9 +21,12 @@ class ChestRoomItemListAdapter(
 ) : RecyclerView.Adapter<ChestRoomItemListAdapter.VH>() {
     inner class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nameView = itemView.findViewById<TextView>(R.id.itemNameV)
+        private val rechargeView = itemView.findViewById<TextView>(R.id.itemRechargeV)
 
         fun bind(item: Item) {
+            Log.d("aaa", "binding ${item.name}")
             nameView.text = item.name
+            rechargeView.text = item.displayRecharge()
 
             itemView.setOnLongClickListener {
                 Toast.makeText(it.context, item.desc, Toast.LENGTH_SHORT).show()
@@ -43,6 +47,7 @@ class ChestRoomItemListAdapter(
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
+        Log.d("aaa", "calling bind of pos $position")
         holder.bind(items[position])
     }
 
