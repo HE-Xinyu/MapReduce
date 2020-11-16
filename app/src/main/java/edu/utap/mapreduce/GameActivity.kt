@@ -6,7 +6,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.ViewTreeObserver
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -21,6 +21,7 @@ import edu.utap.mapreduce.model.PlayerStatus
 import edu.utap.mapreduce.model.Room
 import edu.utap.mapreduce.model.RoomKind
 import edu.utap.mapreduce.model.Stage
+import java.math.BigInteger
 import kotlinx.android.synthetic.main.activity_game.atkV
 import kotlinx.android.synthetic.main.activity_game.chestsV
 import kotlinx.android.synthetic.main.activity_game.coinsV
@@ -46,11 +47,15 @@ class GameActivity : AppCompatActivity() {
     // room view id -> room index
     private var viewId2Idx = mutableMapOf<Int, Int>()
 
+    private lateinit var h: BigInteger
+    private lateinit var w: BigInteger
+
     // TODO: should calculate the interval
     companion object {
         private const val RoomDisplaySize = 60
         private const val RoomInterval = 15
         private val SwitchTextList = listOf("SHOW ROOM DETAIL", "SHOW STAGE")
+        const val PlayerWins = "winOrNot"
     }
 
     private fun dpToPixel(dp: Double): Double {
@@ -107,19 +112,21 @@ class GameActivity : AppCompatActivity() {
             if (playerRoom.isAdjacent(clickedRoom)) {
                 // use 'paths' to make a room reachable
                 if (player.numPaths > 0) {
-                    player.numPaths -= 1
+
+                    player.numPaths --
+
                     stage.paths[playerRoom.id].add(clickedRoom)
                     stage.paths[clickedRoom.id].add(playerRoom)
-                    Toast.makeText(this, "You can go to the room now!", Toast.LENGTH_SHORT).show()
+
+                    Toast.makeText(this, "You can enter the room now!", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "No more paths", Toast.LENGTH_SHORT).show()
                 }
             } else {
                 Toast.makeText(this, "Room unreachable", Toast.LENGTH_SHORT).show()
+                return
             }
-            return
         }
-
 
         val (success, msg) = clickedRoom.tryEnter(player)
         if (msg.isNotEmpty()) {
@@ -137,7 +144,6 @@ class GameActivity : AppCompatActivity() {
         } else {
             player.status = PlayerStatus.INTERACT_WITH_ROOM
             drawRoomDetail(clickedRoom)
-
         }
 
         clickedRoom.visited = true
@@ -154,16 +160,12 @@ class GameActivity : AppCompatActivity() {
 
     private fun endGame(win: Boolean) {
         val resultIntent = Intent(this, EndActivity::class.java)
-        val resultInfo = Bundle()
-        if (!win) {
-            resultInfo.putBoolean("resultInfo", false)
-            resultIntent.putExtras(resultInfo)
-            startActivity(resultIntent)
-        } else {
-            resultInfo.putBoolean("resultInfo", true)
-            resultIntent.putExtras(resultInfo)
-            startActivity(resultIntent)
-        }
+        val winResult = Bundle()
+
+        winResult.putBoolean(PlayerWins, win)
+
+        resultIntent.putExtras(winResult)
+        startActivity(resultIntent)
     }
 
     private fun drawRoomDetail(room: Room) {
@@ -234,6 +236,8 @@ class GameActivity : AppCompatActivity() {
         mapContainer.removeAllViews()
         viewId2Idx.clear()
 
+        val playerRoom = stage.rooms[player.roomIdx]
+
         stage.rooms.forEachIndexed { idx, room ->
             val button = Button(this)
             button.layoutParams = FrameLayout.LayoutParams(
@@ -244,14 +248,14 @@ class GameActivity : AppCompatActivity() {
             // get the width and height of mapContainer, center buttons
             mapContainer.viewTreeObserver.addOnGlobalLayoutListener(
                 object :
-                    ViewTreeObserver.OnGlobalLayoutListener {
+                    OnGlobalLayoutListener {
                     override fun onGlobalLayout() {
                         mapContainer.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                        val h = mapContainer.height
-                        val w = mapContainer.width
+                        h = mapContainer.height.toBigInteger()
+                        w = mapContainer.width.toBigInteger()
                         // h = 1589, w = 1080
-                        val paddingX = (w / 2 - dpToPixel(180.toDouble())).toInt()
-                        val paddingY = (h / 2 - dpToPixel(180.toDouble())).toInt()
+                        val paddingX = (w.toInt() / 2 - dpToPixel(180.toDouble())).toInt()
+                        val paddingY = (h.toInt() / 2 - dpToPixel(180.toDouble())).toInt()
                         button.x = paddingX + mapContainer.x + room.x * (
                             dpToPixel(
                                 (RoomDisplaySize + RoomInterval).toDouble()
@@ -270,15 +274,13 @@ class GameActivity : AppCompatActivity() {
             )
 
             // draw buttons based on RoomKind
-            val playerRoom = stage.rooms[player.roomIdx]
             val newRoom = stage.rooms[idx]
-
             if (!newRoom.visited) {
                 if (playerRoom.canReach(newRoom, stage)) {
                     when (newRoom.kind) {
                         RoomKind.BOSS -> button.setBackgroundResource(R.drawable.boss606024)
                         RoomKind.CHEST -> button.setBackgroundResource(R.drawable.chest606024)
-                        else -> button.setBackgroundResource(R.drawable.n606024)
+                        RoomKind.NORMAL -> button.setBackgroundResource(R.drawable.n606024)
                     }
                 } else { button.setBackgroundColor(Color.parseColor("#ffde7d")) }
             } else {
@@ -334,7 +336,6 @@ class GameActivity : AppCompatActivity() {
                 if (player.status == PlayerStatus.LOSE) {
                     endGame(false)
                 }
-
             }
         )
 
