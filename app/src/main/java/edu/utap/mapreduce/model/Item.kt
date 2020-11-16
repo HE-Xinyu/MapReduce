@@ -1,9 +1,10 @@
 package edu.utap.mapreduce.model
 
 import java.lang.Exception
+import kotlin.math.min
 import kotlin.random.Random
 
-val AllItems = setOf<Item>(Item1())
+val AllItems = setOf(Item1(), Item2())
 
 enum class ItemKind {
     ACTIVATED,
@@ -22,7 +23,7 @@ abstract class Item(
     val desc: String,
     val kind: ItemKind,
     val level: RareLevel = RareLevel.NORMAL,
-    val charge: Int = 0
+    val recharge: Int = 0
 ) {
     companion object {
         fun fetchItem(excludedItems: List<Item>): Item? {
@@ -51,12 +52,46 @@ abstract class Item(
         }
     }
 
-    var curCharge = charge
-    open fun onStartBattle(player: Player, enemy: Enemy, stage: Stage) {
+    var curRecharge = recharge
+
+    // START OF the functions to override in each items
+
+    // called on every start of the battle
+    open fun onStartBattle(player: Player, enemy: Enemy, stage: Stage) {}
+
+    // called on every activation of the item.
+    // only effective for the activated items.
+    open fun doActivate(player: Player, stage: Stage) {}
+
+    // END OF the functions to override in each items
+
+    fun canBeActivated(): Boolean {
+        return kind == ItemKind.PASSIVE || curRecharge == recharge
     }
 
-    fun canBeUsed(): Boolean {
-        return kind == ItemKind.PASSIVE || curCharge == charge
+    fun displayRecharge(): String {
+        return if (kind == ItemKind.PASSIVE) "PASSIVE" else "$curRecharge/$recharge"
+    }
+
+    fun doRecharge() {
+        if (kind == ItemKind.ACTIVATED) {
+            curRecharge = min(recharge, curRecharge + 1)
+        }
+    }
+
+    fun onActivate(player: Player, stage: Stage): String {
+        if (!canBeActivated()) {
+            return "Cannot activate this item! " +
+                "The item must be fully recharged and its type must be activated"
+        }
+
+        if (player.status != PlayerStatus.INTERACT_WITH_STAGE) {
+            return "Player can only activate items when interacting with the stage"
+        }
+
+        curRecharge = 0
+        doActivate(player, stage)
+        return "Success!"
     }
 
     /*
@@ -83,5 +118,18 @@ class Item1 : Item("test item", "test desc", ItemKind.PASSIVE) {
     override fun onStartBattle(player: Player, enemy: Enemy, stage: Stage) {
         super.onStartBattle(player, enemy, stage)
         player.hp += 5
+    }
+}
+
+class Item2 : Item(
+    "test activated item",
+    "test activated item desc",
+    ItemKind.ACTIVATED,
+    RareLevel.NORMAL,
+    4
+) {
+    override fun doActivate(player: Player, stage: Stage) {
+        super.doActivate(player, stage)
+        player.spd += 5
     }
 }

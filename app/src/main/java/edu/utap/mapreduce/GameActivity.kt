@@ -126,6 +126,9 @@ class GameActivity : AppCompatActivity() {
         clickedRoom.visited = true
 
         player.roomIdx = viewId2Idx[roomView.id]!!
+        player.obtainedItems.forEach {
+            it.doRecharge()
+        }
 
         model.setPlayer(player)
         model.setStage(stage)
@@ -156,19 +159,19 @@ class GameActivity : AppCompatActivity() {
                     enemyListAdapter.player = player
                     enemyListAdapter.room = room
                     enemyListAdapter.stage = stage
-                    enemyListAdapter.notifyDataSetChanged()
                 } else {
                     enemyListAdapter = EnemyListAdapter(player, room, stage, model)
-                    roomDetailV.adapter = enemyListAdapter
                 }
+                roomDetailV.adapter = enemyListAdapter
+                enemyListAdapter.notifyDataSetChanged()
             }
             RoomKind.CHEST -> {
                 val itemList = listOf(Item.fetchItem(player.obtainedItems)!!)
+                Log.d("aaa", itemList[0].name)
                 if (this::chestRoomItemListAdapter.isInitialized) {
                     chestRoomItemListAdapter.player = player
                     chestRoomItemListAdapter.stage = stage
                     chestRoomItemListAdapter.items = itemList
-                    chestRoomItemListAdapter.notifyDataSetChanged()
                 } else {
                     chestRoomItemListAdapter = ChestRoomItemListAdapter(
                         player,
@@ -176,8 +179,9 @@ class GameActivity : AppCompatActivity() {
                         itemList,
                         model
                     )
-                    roomDetailV.adapter = chestRoomItemListAdapter
                 }
+                roomDetailV.adapter = chestRoomItemListAdapter
+                chestRoomItemListAdapter.notifyDataSetChanged()
             }
             else -> {
             }
@@ -259,7 +263,11 @@ class GameActivity : AppCompatActivity() {
                     obtainedItemListAdapter.player = it
                     obtainedItemListAdapter.notifyDataSetChanged()
                 } else {
-                    obtainedItemListAdapter = ObtainedItemListAdapter(it)
+                    obtainedItemListAdapter = ObtainedItemListAdapter(
+                        it,
+                        model.observeStage().value!!,
+                        model
+                    )
                     itemsContainer.adapter = obtainedItemListAdapter
                     itemsContainer.layoutManager = LinearLayoutManager(this)
                 }
@@ -280,6 +288,11 @@ class GameActivity : AppCompatActivity() {
                 stageV.text = "Stage ${it.curStage}"
 
                 switchV.text = "SHOW ROOM DETAIL"
+
+                if (this::obtainedItemListAdapter.isInitialized) {
+                    obtainedItemListAdapter.stage = it
+                }
+
                 redrawStage()
             }
         )
