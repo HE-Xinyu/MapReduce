@@ -7,7 +7,8 @@ Next-gen rogue-like game!
 - Shop
 - Award system
 - Enemy Pool
-
+- More Enemies
+- More Items
 - Manual
 - More to come...
 
