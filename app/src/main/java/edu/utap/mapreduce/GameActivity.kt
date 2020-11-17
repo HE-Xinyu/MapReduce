@@ -274,10 +274,9 @@ class GameActivity : AppCompatActivity() {
             )
 
             // draw buttons based on RoomKind
-            val newRoom = stage.rooms[idx]
-            if (!newRoom.visited) {
-                if (playerRoom.canReach(newRoom, stage)) {
-                    when (newRoom.kind) {
+            if (!room.visited) {
+                if (playerRoom.canReach(room, stage)) {
+                    when (room.kind) {
                         RoomKind.BOSS -> button.setBackgroundResource(R.drawable.boss606024)
                         RoomKind.CHEST -> button.setBackgroundResource(R.drawable.chest606024)
                         RoomKind.NORMAL -> button.setBackgroundResource(R.drawable.n606024)

@@ -5,32 +5,33 @@ import kotlin.random.Random
 
 class Stage(var curStage: Int) {
     // note: if we decide to change n as player progress, the rooms and paths need to be lateinit.
-    private val n: Int = 5
     private val pathProb = 1.0
     var rooms = emptyList<Room>().toMutableList()
-    var paths = List(n * n) {
+    var paths = List(side_length * side_length) {
         emptySet<Room>().toMutableSet()
     }
 
     companion object {
         const val MaxStages = 3
+        const val side_length: Int = 5
     }
 
     private fun doInit() {
         rooms.clear()
-        paths = List(n * n) {
+        paths = List(side_length * side_length) {
             emptySet<Room>().toMutableSet()
         }
 
         // 1. initialize rooms
-        for (i in 0 until n) {
-            for (j in 0 until n) {
-                val kind = if (i == n - 1 && j == n - 1) RoomKind.BOSS else RoomKind.NORMAL
+        for (i in 0 until side_length) {
+            for (j in 0 until side_length) {
+                val kind = if (i == side_length - 1 && j == side_length - 1)
+                    RoomKind.BOSS else RoomKind.NORMAL
                 /*
                     The room id is simply the index of it in the stage.
                     If two rooms are merged into one, then they share the same id.
                  */
-                rooms.add(Room(i, j, kind, i * n + j))
+                rooms.add(Room(i, j, kind, i * side_length + j))
             }
         }
 
