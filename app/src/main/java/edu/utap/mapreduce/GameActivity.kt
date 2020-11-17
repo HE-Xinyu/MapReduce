@@ -21,7 +21,6 @@ import edu.utap.mapreduce.model.PlayerStatus
 import edu.utap.mapreduce.model.Room
 import edu.utap.mapreduce.model.RoomKind
 import edu.utap.mapreduce.model.Stage
-import java.math.BigInteger
 import kotlinx.android.synthetic.main.activity_game.atkV
 import kotlinx.android.synthetic.main.activity_game.chestsV
 import kotlinx.android.synthetic.main.activity_game.coinsV
@@ -47,8 +46,8 @@ class GameActivity : AppCompatActivity() {
     // room view id -> room index
     private var viewId2Idx = mutableMapOf<Int, Int>()
 
-    private lateinit var h: BigInteger
-    private lateinit var w: BigInteger
+    private var containerHeight: Int = 0
+    private var containerWidth: Int = 0
 
     // TODO: should calculate the interval
     companion object {
@@ -118,7 +117,7 @@ class GameActivity : AppCompatActivity() {
                     stage.paths[playerRoom.id].add(clickedRoom)
                     stage.paths[clickedRoom.id].add(playerRoom)
 
-                    Toast.makeText(this, "You can enter the room now!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "You used a path", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "No more paths", Toast.LENGTH_SHORT).show()
                 }
@@ -251,11 +250,11 @@ class GameActivity : AppCompatActivity() {
                     OnGlobalLayoutListener {
                     override fun onGlobalLayout() {
                         mapContainer.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                        h = mapContainer.height.toBigInteger()
-                        w = mapContainer.width.toBigInteger()
-                        // h = 1589, w = 1080
-                        val paddingX = (w.toInt() / 2 - dpToPixel(180.toDouble())).toInt()
-                        val paddingY = (h.toInt() / 2 - dpToPixel(180.toDouble())).toInt()
+                        containerHeight = mapContainer.height
+                        containerWidth = mapContainer.width
+                        // h = 1524, w = 1080
+                        val paddingX = (containerWidth / 2 - dpToPixel(180.toDouble())).toInt()
+                        val paddingY = (containerHeight / 2 - dpToPixel(180.toDouble())).toInt()
                         button.x = paddingX + mapContainer.x + room.x * (
                             dpToPixel(
                                 (RoomDisplaySize + RoomInterval).toDouble()

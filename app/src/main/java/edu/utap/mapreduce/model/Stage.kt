@@ -7,31 +7,31 @@ class Stage(var curStage: Int) {
     // note: if we decide to change n as player progress, the rooms and paths need to be lateinit.
     private val pathProb = 1.0
     var rooms = emptyList<Room>().toMutableList()
-    var paths = List(side_length * side_length) {
+    var paths = List(SideLength * SideLength) {
         emptySet<Room>().toMutableSet()
     }
 
     companion object {
         const val MaxStages = 3
-        const val side_length: Int = 5
+        const val SideLength: Int = 5
     }
 
     private fun doInit() {
         rooms.clear()
-        paths = List(side_length * side_length) {
+        paths = List(SideLength * SideLength) {
             emptySet<Room>().toMutableSet()
         }
 
         // 1. initialize rooms
-        for (i in 0 until side_length) {
-            for (j in 0 until side_length) {
-                val kind = if (i == side_length - 1 && j == side_length - 1)
+        for (i in 0 until SideLength) {
+            for (j in 0 until SideLength) {
+                val kind = if (i == SideLength - 1 && j == SideLength - 1)
                     RoomKind.BOSS else RoomKind.NORMAL
                 /*
                     The room id is simply the index of it in the stage.
                     If two rooms are merged into one, then they share the same id.
                  */
-                rooms.add(Room(i, j, kind, i * side_length + j))
+                rooms.add(Room(i, j, kind, i * SideLength + j))
             }
         }
 
