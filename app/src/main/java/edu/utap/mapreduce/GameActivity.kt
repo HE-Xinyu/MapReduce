@@ -1,9 +1,12 @@
 package edu.utap.mapreduce
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -43,11 +46,15 @@ class GameActivity : AppCompatActivity() {
     // room view id -> room index
     private var viewId2Idx = mutableMapOf<Int, Int>()
 
+    private var containerHeight: Int = 0
+    private var containerWidth: Int = 0
+
     // TODO: should calculate the interval
     companion object {
         private const val RoomDisplaySize = 60
         private const val RoomInterval = 15
         private val SwitchTextList = listOf("SHOW ROOM DETAIL", "SHOW STAGE")
+        const val PlayerWins = "winOrNot"
     }
 
     private fun dpToPixel(dp: Double): Double {
@@ -101,8 +108,23 @@ class GameActivity : AppCompatActivity() {
         }
 
         if (!playerRoom.canReach(clickedRoom, stage)) {
-            Toast.makeText(this, "Room unreachable", Toast.LENGTH_SHORT).show()
-            return
+            if (playerRoom.isAdjacent(clickedRoom)) {
+                // use 'paths' to make a room reachable
+                if (player.numPaths > 0) {
+
+                    player.numPaths --
+
+                    stage.paths[playerRoom.id].add(clickedRoom)
+                    stage.paths[clickedRoom.id].add(playerRoom)
+
+                    Toast.makeText(this, "You used a path", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "No more paths", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(this, "Room unreachable", Toast.LENGTH_SHORT).show()
+                return
+            }
         }
 
         val (success, msg) = clickedRoom.tryEnter(player)
@@ -136,8 +158,13 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun endGame(win: Boolean) {
-        // TODO
-        Toast.makeText(this, "Win: $win", Toast.LENGTH_SHORT).show()
+        val resultIntent = Intent(this, EndActivity::class.java)
+        val winResult = Bundle()
+
+        winResult.putBoolean(PlayerWins, win)
+
+        resultIntent.putExtras(winResult)
+        startActivity(resultIntent)
     }
 
     private fun drawRoomDetail(room: Room) {
@@ -207,39 +234,69 @@ class GameActivity : AppCompatActivity() {
         switchV.text = SwitchTextList[0]
         mapContainer.removeAllViews()
         viewId2Idx.clear()
-        stage.rooms.forEachIndexed {
-            idx, room ->
+
+        val playerRoom = stage.rooms[player.roomIdx]
+
+        stage.rooms.forEachIndexed { idx, room ->
             val button = Button(this)
             button.layoutParams = FrameLayout.LayoutParams(
                 dpToPixel(RoomDisplaySize.toDouble()).toInt(),
                 dpToPixel(RoomDisplaySize.toDouble()).toInt()
             )
-            if (player.roomIdx == idx) {
-                button.text = "(${room.x}, ${room.y}) P"
+
+            // get the width and height of mapContainer, center buttons
+            mapContainer.viewTreeObserver.addOnGlobalLayoutListener(
+                object :
+                    OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        mapContainer.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        containerHeight = mapContainer.height
+                        containerWidth = mapContainer.width
+                        // h = 1524, w = 1080
+                        val midContentLength = Stage.SideLength / 2.0 * RoomDisplaySize +
+                            (Stage.SideLength - 1) / 2.0 * RoomInterval
+                        val paddingX = (containerWidth / 2 - dpToPixel(midContentLength)).toInt()
+                        val paddingY = (containerHeight / 2 - dpToPixel(midContentLength)).toInt()
+                        button.x = paddingX + mapContainer.x + room.x * (
+                            dpToPixel(
+                                (RoomDisplaySize + RoomInterval).toDouble()
+                            ).toInt()
+                            )
+                        button.y = paddingY + mapContainer.y + room.y * (
+                            dpToPixel(
+                                (RoomDisplaySize + RoomInterval).toDouble()
+                            ).toInt()
+                            )
+                        button.setOnClickListener { roomView ->
+                            onRoomClick(roomView)
+                        }
+                    }
+                }
+            )
+
+            // draw buttons based on RoomKind
+            if (!room.visited) {
+                if (playerRoom.canReach(room, stage)) {
+                    when (room.kind) {
+                        RoomKind.BOSS -> button.setBackgroundResource(R.drawable.boss606024)
+                        RoomKind.CHEST -> button.setBackgroundResource(R.drawable.chest606024)
+                        RoomKind.NORMAL -> button.setBackgroundResource(R.drawable.n606024)
+                    }
+                } else { button.setBackgroundColor(Color.parseColor("#ffde7d")) }
             } else {
-                button.text = "(${room.x}, ${room.y})"
+                button.setBackgroundColor(Color.parseColor("#00b8a9"))
             }
-            button.x = mapContainer.x + room.x * (
-                dpToPixel(
-                    (RoomDisplaySize + RoomInterval).toDouble()
-                ).toInt()
-                )
-            button.y = mapContainer.y + room.y * (
-                dpToPixel(
-                    (RoomDisplaySize + RoomInterval).toDouble()
-                ).toInt()
-                )
-            button.setOnClickListener {
-                roomView ->
-                onRoomClick(roomView)
+
+            if (player.roomIdx == idx) {
+                button.setBackgroundResource(R.drawable.player)
             }
+
             // use generateViewId() to avoid conflicts (hopefully)
             button.id = View.generateViewId()
             viewId2Idx[button.id] = idx
             mapContainer.addView(button)
         }
     }
-
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -249,6 +306,7 @@ class GameActivity : AppCompatActivity() {
             this,
             {
                 player = it
+
                 hpV.text = "HP: ${it.hp}"
                 atkV.text = "ATK: ${it.atk}"
                 defV.text = "DEF: ${it.def}"
