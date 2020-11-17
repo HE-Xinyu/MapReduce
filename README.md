@@ -10,6 +10,7 @@ Next-gen rogue-like game!
 - More Enemies
 - More Items
 - Manual
+- Timer
 - More to come...
 
 # Finished features
