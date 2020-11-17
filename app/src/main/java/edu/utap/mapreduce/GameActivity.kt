@@ -253,8 +253,10 @@ class GameActivity : AppCompatActivity() {
                         containerHeight = mapContainer.height
                         containerWidth = mapContainer.width
                         // h = 1524, w = 1080
-                        val paddingX = (containerWidth / 2 - dpToPixel(180.toDouble())).toInt()
-                        val paddingY = (containerHeight / 2 - dpToPixel(180.toDouble())).toInt()
+                        val midContentLength = Stage.SideLength / 2.0 * RoomDisplaySize +
+                            (Stage.SideLength - 1) / 2.0 * RoomInterval
+                        val paddingX = (containerWidth / 2 - dpToPixel(midContentLength)).toInt()
+                        val paddingY = (containerHeight / 2 - dpToPixel(midContentLength)).toInt()
                         button.x = paddingX + mapContainer.x + room.x * (
                             dpToPixel(
                                 (RoomDisplaySize + RoomInterval).toDouble()
