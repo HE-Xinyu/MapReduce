@@ -36,6 +36,7 @@ import kotlinx.android.synthetic.main.activity_game.switchV
 
 class GameActivity : AppCompatActivity() {
     private val model: GameViewModel by viewModels()
+    private val logger = GameLogger()
     private lateinit var stage: Stage
     private lateinit var player: Player
     private lateinit var obtainedItemListAdapter: ObtainedItemListAdapter
@@ -107,22 +108,27 @@ class GameActivity : AppCompatActivity() {
             return
         }
 
-        if (!playerRoom.canReach(clickedRoom, stage)) {
-            if (playerRoom.isAdjacent(clickedRoom)) {
-                // use 'paths' to make a room reachable
-                if (player.numPaths > 0) {
+        val (canReach, needPath) = playerRoom.canReach(clickedRoom, stage)
 
-                    player.numPaths --
+        if (!canReach) {
+            Toast.makeText(this, "Room unreachable", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-                    stage.paths[playerRoom.id].add(clickedRoom)
-                    stage.paths[clickedRoom.id].add(playerRoom)
+        logger.log("Try to enter room (${clickedRoom.x}, ${clickedRoom.y})")
 
-                    Toast.makeText(this, "You used a path", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this, "No more paths", Toast.LENGTH_SHORT).show()
-                }
+        if (needPath) {
+            // use 'paths' to make a room reachable
+            if (player.numPaths > 0) {
+                player.numPaths--
+                stage.paths[playerRoom.id].add(clickedRoom)
+                stage.paths[clickedRoom.id].add(playerRoom)
+
+                logger.log("You used a path")
+                Toast.makeText(this, "You used a path", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Room unreachable", Toast.LENGTH_SHORT).show()
+                logger.log("You have no paths")
+                Toast.makeText(this, "You have no paths", Toast.LENGTH_SHORT).show()
                 return
             }
         }
@@ -154,7 +160,6 @@ class GameActivity : AppCompatActivity() {
 
         model.setPlayer(player)
         model.setStage(stage)
-        Log.d("aaa", "clicking button (${roomView.x}, ${roomView.y})")
     }
 
     private fun endGame(win: Boolean) {
@@ -276,7 +281,8 @@ class GameActivity : AppCompatActivity() {
 
             // draw buttons based on RoomKind
             if (!room.visited) {
-                if (playerRoom.canReach(room, stage)) {
+                val (canReach, needPath) = playerRoom.canReach(room, stage)
+                if (canReach && !needPath) {
                     when (room.kind) {
                         RoomKind.BOSS -> button.setBackgroundResource(R.drawable.boss606024)
                         RoomKind.CHEST -> button.setBackgroundResource(R.drawable.chest606024)
