@@ -14,6 +14,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import edu.utap.mapreduce.model.AwardSampler
 import edu.utap.mapreduce.model.GameViewModel
 import edu.utap.mapreduce.model.Item
 import edu.utap.mapreduce.model.Player
@@ -307,6 +308,24 @@ class GameActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
+
+        chestsV.setOnClickListener {
+            if (player.numChests == 0) {
+                Toast.makeText(this, "You don't have a chest", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (player.numKeys == 0) {
+                Toast.makeText(this, "You need a key to open a chest", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            player.numKeys--
+            player.numChests--
+            // TODO: tell player about the award!
+            AwardSampler.sampleChest(player).applyTo(player)
+
+            model.setPlayer(player)
+        }
 
         model.observePlayer().observe(
             this,
