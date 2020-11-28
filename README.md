@@ -2,7 +2,6 @@
 Next-gen rogue-like game!
 
 # Remaining features
-- Shop
 - Enemy Pool
 - More Enemies
 - More Items
@@ -25,3 +24,4 @@ Next-gen rogue-like game!
 - Chests
 - Coins
 - Award system
+- Shop
