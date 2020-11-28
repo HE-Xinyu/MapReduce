@@ -21,6 +21,7 @@ import edu.utap.mapreduce.model.Player
 import edu.utap.mapreduce.model.PlayerStatus
 import edu.utap.mapreduce.model.Room
 import edu.utap.mapreduce.model.RoomKind
+import edu.utap.mapreduce.model.ShopItem
 import edu.utap.mapreduce.model.Stage
 import kotlinx.android.synthetic.main.activity_game.atkV
 import kotlinx.android.synthetic.main.activity_game.chestsV
@@ -43,6 +44,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var obtainedItemListAdapter: ObtainedItemListAdapter
     private lateinit var enemyListAdapter: EnemyListAdapter
     private lateinit var chestRoomItemListAdapter: ChestRoomItemListAdapter
+    private lateinit var shopItemListAdapter: ShopItemListAdapter
     private lateinit var roomDetailV: RecyclerView
 
     // room view id -> room index
@@ -86,8 +88,6 @@ class GameActivity : AppCompatActivity() {
             SwitchTextList[1] -> redrawStage(force = true)
             else -> Log.e("aaa", "Impossible button text ${button.text}")
         }
-
-//        button.text = SwitchTextList[1 - SwitchTextList.indexOf(button.text)]
     }
 
     private fun onRoomClick(roomView: View) {
@@ -216,7 +216,23 @@ class GameActivity : AppCompatActivity() {
                 roomDetailV.adapter = chestRoomItemListAdapter
                 chestRoomItemListAdapter.notifyDataSetChanged()
             }
-            else -> {
+            RoomKind.SHOP -> {
+                val itemList = ShopItem.sample(3, player).toMutableList()
+                Log.d("aaa", itemList[0].showName())
+                if (this::shopItemListAdapter.isInitialized) {
+                    shopItemListAdapter.player = player
+                    shopItemListAdapter.stage = stage
+                    shopItemListAdapter.shopItems = itemList
+                } else {
+                    shopItemListAdapter = ShopItemListAdapter(
+                        player,
+                        stage,
+                        model,
+                        itemList
+                    )
+                }
+                roomDetailV.adapter = shopItemListAdapter
+                shopItemListAdapter.notifyDataSetChanged()
             }
         }
         mapContainer.addView(roomDetailV)
@@ -288,6 +304,8 @@ class GameActivity : AppCompatActivity() {
                         RoomKind.BOSS -> button.setBackgroundResource(R.drawable.boss606024)
                         RoomKind.CHEST -> button.setBackgroundResource(R.drawable.chest606024)
                         RoomKind.NORMAL -> button.setBackgroundResource(R.drawable.n606024)
+                        // TODO: find a logo for shop.
+                        RoomKind.SHOP -> button.setBackgroundResource(R.drawable.boss606024)
                     }
                 } else { button.setBackgroundColor(Color.parseColor("#ffde7d")) }
             } else {

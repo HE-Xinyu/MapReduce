@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import edu.utap.mapreduce.model.AwardSampler
 import edu.utap.mapreduce.model.BattleResult
 import edu.utap.mapreduce.model.BattleSimulator
-import edu.utap.mapreduce.model.Enemy
 import edu.utap.mapreduce.model.GameViewModel
 import edu.utap.mapreduce.model.Player
 import edu.utap.mapreduce.model.PlayerStatus
@@ -26,7 +25,8 @@ class EnemyListAdapter(
     inner class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nameView = itemView.findViewById<TextView>(R.id.enemyNameV)
 
-        fun bind(enemy: Enemy) {
+        fun bind(pos: Int) {
+            val enemy = room.enemies!![pos]
             nameView.text = enemy.name
             itemView.setOnClickListener {
                 /*
@@ -70,7 +70,7 @@ class EnemyListAdapter(
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         room.enemies?.let {
-            holder.bind(it[position])
+            holder.bind(position)
         }
     }
 

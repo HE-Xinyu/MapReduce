@@ -7,6 +7,7 @@ enum class RoomKind {
     NORMAL,
     BOSS,
     CHEST,
+    SHOP,
 }
 
 class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
@@ -97,7 +98,7 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
             RoomKind.NORMAL, RoomKind.BOSS -> {
                 Pair(true, "")
             }
-            RoomKind.CHEST -> {
+            RoomKind.CHEST, RoomKind.SHOP -> {
                 if (player.numKeys > 0) {
                     player.numKeys--
                     Pair(true, "You used a key.")
