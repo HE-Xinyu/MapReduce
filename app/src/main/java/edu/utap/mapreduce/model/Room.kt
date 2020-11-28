@@ -7,6 +7,7 @@ enum class RoomKind {
     NORMAL,
     BOSS,
     CHEST,
+    SHOP,
 }
 
 class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
@@ -30,17 +31,66 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
         return abs(x - other.x) + abs(y - other.y) == 1
     }
 
+    private fun getAdjacentRooms(stage: Stage): List<Room> {
+        val dx = listOf(-1, 1, 0, 0)
+        val dy = listOf(0, 0, -1, 1)
+
+        val ret = emptyList<Room>().toMutableList()
+
+        for (k in 0 until 4) {
+            val nx = this.x + dx[k]
+            val ny = this.y + dy[k]
+            if (nx >= 0 && ny >= 0 && nx < Stage.SideLength && ny < Stage.SideLength) {
+                ret.add(stage.rooms[nx * Stage.SideLength + ny])
+            }
+        }
+        return ret
+    }
+
     /*
         Check if the room can reach the other one.
         The room can be reached from itself.
-        Currently there are two cases when the room is reachable:
-        1. player has already visited it
-        2. there is a path connecting them
+
+        Run a BFS (Breadth First Search). We don't want to accidentally build a path when the
+        player can instead bypass it by first going to other visited rooms.
 
         NOTE: If we decide to add more movement mechanics to the game, we should change it as well.
      */
-    fun canReach(other: Room, stage: Stage): Boolean {
-        return other.visited || stage.paths[id].contains(other)
+    fun canReach(other: Room, stage: Stage): Pair<Boolean, Boolean> {
+        if (this === other) {
+            return Pair(true, false)
+        }
+
+        var ok = false
+        var needPath = false
+
+        // simulate a queue using a list
+        val q = listOf(this).toMutableList()
+        val enqueued = setOf(this).toMutableSet()
+
+        while (q.isNotEmpty()) {
+            val current = q.removeFirst()
+            if (current === other) {
+                ok = true
+                needPath = false
+                break
+            }
+
+            for (next in current.getAdjacentRooms(stage)) {
+                if (enqueued.contains(next)) {
+                    continue
+                }
+
+                if (stage.paths[current.id].contains(next) && (next.visited || next === other)) {
+                    q.add(next)
+                    enqueued.add(next)
+                } else if (next === other) {
+                    ok = true
+                    needPath = true
+                }
+            }
+        }
+        return Pair(ok, needPath)
     }
 
     fun tryEnter(player: Player): Pair<Boolean, String> {
@@ -48,7 +98,7 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
             RoomKind.NORMAL, RoomKind.BOSS -> {
                 Pair(true, "")
             }
-            RoomKind.CHEST -> {
+            RoomKind.CHEST, RoomKind.SHOP -> {
                 if (player.numKeys > 0) {
                     player.numKeys--
                     Pair(true, "You used a key.")

@@ -2,15 +2,11 @@
 Next-gen rogue-like game!
 
 # Remaining features
-- Visual enhancement (room type hint, path lines, centering the map, etc.)
-- Room detail (in most cases it is a `RecyclerView`)
-- Chests
-- Coins
-- Shop
-- Award system
 - Enemy Pool
-
+- More Enemies
+- More Items
 - Manual
+- Timer
 - More to come...
 
 # Finished features
@@ -23,3 +19,9 @@ Next-gen rogue-like game!
 - Keys
 - Paths
 - Activated Items
+- Visual enhancement (room type hint, path lines, centering the map, etc.)
+- Room detail (in most cases it is a `RecyclerView`)
+- Chests
+- Coins
+- Award system
+- Shop

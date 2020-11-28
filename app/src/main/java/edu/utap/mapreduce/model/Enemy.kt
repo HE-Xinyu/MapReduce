@@ -2,12 +2,19 @@ package edu.utap.mapreduce.model
 
 import edu.utap.mapreduce.IAbleToFight
 
+enum class EnemyKind {
+    NORMAL,
+    ELITE,
+    BOSS,
+}
+
 data class Enemy(
     override var hp: Int,
     var atk: Int,
     var def: Int,
     var spd: Int,
     var name: String,
+    var kind: EnemyKind = EnemyKind.NORMAL
 ) : IAbleToFight
 // assume player(100, 50, 50, 50)
 val testEnemy = Enemy(100, 100, 100, 100, "test enemy name")

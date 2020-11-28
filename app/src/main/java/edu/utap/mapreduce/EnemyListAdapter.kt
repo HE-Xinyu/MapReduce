@@ -1,13 +1,14 @@
 package edu.utap.mapreduce
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import edu.utap.mapreduce.model.AwardSampler
 import edu.utap.mapreduce.model.BattleResult
 import edu.utap.mapreduce.model.BattleSimulator
-import edu.utap.mapreduce.model.Enemy
 import edu.utap.mapreduce.model.GameViewModel
 import edu.utap.mapreduce.model.Player
 import edu.utap.mapreduce.model.PlayerStatus
@@ -24,7 +25,8 @@ class EnemyListAdapter(
     inner class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nameView = itemView.findViewById<TextView>(R.id.enemyNameV)
 
-        fun bind(enemy: Enemy) {
+        fun bind(pos: Int) {
+            val enemy = room.enemies!![pos]
             nameView.text = enemy.name
             itemView.setOnClickListener {
                 /*
@@ -36,8 +38,11 @@ class EnemyListAdapter(
                 val result = BattleSimulator.oneOnOne(player, enemy, stage)
 
                 if (result == BattleResult.WIN) {
-                    // TODO: verify that the enemies should be different even if
-                    //      they have the same stats
+                    val award = AwardSampler.sample(player, enemy)
+                    // TODO: tell player about the award and the battle result
+                    Log.d("aaa", award.toString())
+                    award.applyTo(player)
+
                     room.enemies!!.remove(enemy)
                     if (stage.curStage == Stage.MaxStages && room.kind == RoomKind.BOSS) {
                         player.status = PlayerStatus.WIN
@@ -65,7 +70,7 @@ class EnemyListAdapter(
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         room.enemies?.let {
-            holder.bind(it[position])
+            holder.bind(position)
         }
     }
 

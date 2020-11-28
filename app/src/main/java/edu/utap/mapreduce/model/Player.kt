@@ -22,10 +22,10 @@ class Player(
      */
     var obtainedItems = emptyList<Item>().toMutableList()
 
-    var numKeys = 99
-    var numPaths = 99
-    var numCoins = 99
-    var numChests = 99
+    var numKeys = 0
+    var numPaths = 0
+    var numCoins = 0
+    var numChests = 0
 
     var status = PlayerStatus.INTERACT_WITH_STAGE
 
