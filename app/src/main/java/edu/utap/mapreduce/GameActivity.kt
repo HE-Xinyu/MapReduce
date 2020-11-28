@@ -404,4 +404,22 @@ class GameActivity : AppCompatActivity() {
             onSwitchButtonClick(it)
         }
     }
+
+    override fun onBackPressed() {
+        if (player.status == PlayerStatus.INTERACT_WITH_ROOM) {
+            when (stage.rooms[player.roomIdx].kind) {
+                RoomKind.SHOP, RoomKind.CHEST -> {
+                    Toast.makeText(this, "You exited the room", Toast.LENGTH_SHORT).show()
+                    player.status = PlayerStatus.INTERACT_WITH_STAGE
+                    model.setPlayer(player)
+                    redrawStage()
+                }
+                else -> {
+                    Toast.makeText(this, "You cannot escape the combat", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            super.onBackPressed()
+        }
+    }
 }
