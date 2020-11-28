@@ -84,7 +84,7 @@ class GameActivity : AppCompatActivity() {
         }
 
         when (button.text) {
-            SwitchTextList[0] -> drawRoomDetail(stage.rooms[player.roomIdx])
+            SwitchTextList[0] -> drawRoomDetail(stage.rooms[player.roomIdx], fromSwitch = true)
             SwitchTextList[1] -> redrawStage(force = true)
             else -> Log.e("aaa", "Impossible button text ${button.text}")
         }
@@ -173,7 +173,7 @@ class GameActivity : AppCompatActivity() {
         startActivity(resultIntent)
     }
 
-    private fun drawRoomDetail(room: Room) {
+    private fun drawRoomDetail(room: Room, fromSwitch: Boolean = false) {
         switchV.text = SwitchTextList[1]
         mapContainer.removeAllViews()
         // only initialize detail recycler view once to be a little more efficient
@@ -199,40 +199,44 @@ class GameActivity : AppCompatActivity() {
                 enemyListAdapter.notifyDataSetChanged()
             }
             RoomKind.CHEST -> {
-                val itemList = listOf(Item.fetchItem(player.obtainedItems)!!)
-                Log.d("aaa", itemList[0].name)
-                if (this::chestRoomItemListAdapter.isInitialized) {
-                    chestRoomItemListAdapter.player = player
-                    chestRoomItemListAdapter.stage = stage
-                    chestRoomItemListAdapter.items = itemList
-                } else {
-                    chestRoomItemListAdapter = ChestRoomItemListAdapter(
-                        player,
-                        stage,
-                        itemList,
-                        model
-                    )
+                if (!fromSwitch) {
+                    val itemList = listOf(Item.fetchItem(player.obtainedItems)!!)
+                    Log.d("aaa", itemList[0].name)
+                    if (this::chestRoomItemListAdapter.isInitialized) {
+                        chestRoomItemListAdapter.player = player
+                        chestRoomItemListAdapter.stage = stage
+                        chestRoomItemListAdapter.items = itemList
+                    } else {
+                        chestRoomItemListAdapter = ChestRoomItemListAdapter(
+                            player,
+                            stage,
+                            itemList,
+                            model
+                        )
+                    }
+                    chestRoomItemListAdapter.notifyDataSetChanged()
                 }
                 roomDetailV.adapter = chestRoomItemListAdapter
-                chestRoomItemListAdapter.notifyDataSetChanged()
             }
             RoomKind.SHOP -> {
-                val itemList = ShopItem.sample(3, player).toMutableList()
-                Log.d("aaa", itemList[0].showName())
-                if (this::shopItemListAdapter.isInitialized) {
-                    shopItemListAdapter.player = player
-                    shopItemListAdapter.stage = stage
-                    shopItemListAdapter.shopItems = itemList
-                } else {
-                    shopItemListAdapter = ShopItemListAdapter(
-                        player,
-                        stage,
-                        model,
-                        itemList
-                    )
+                if (!fromSwitch) {
+                    val itemList = ShopItem.sample(3, player).toMutableList()
+                    Log.d("aaa", itemList[0].showName())
+                    if (this::shopItemListAdapter.isInitialized) {
+                        shopItemListAdapter.player = player
+                        shopItemListAdapter.stage = stage
+                        shopItemListAdapter.shopItems = itemList
+                        shopItemListAdapter.notifyDataSetChanged()
+                    } else {
+                        shopItemListAdapter = ShopItemListAdapter(
+                            player,
+                            stage,
+                            model,
+                            itemList
+                        )
+                    }
                 }
                 roomDetailV.adapter = shopItemListAdapter
-                shopItemListAdapter.notifyDataSetChanged()
             }
         }
         mapContainer.addView(roomDetailV)
@@ -387,8 +391,6 @@ class GameActivity : AppCompatActivity() {
             {
                 stage = it
                 stageV.text = "Stage ${it.curStage}"
-
-                switchV.text = "SHOW ROOM DETAIL"
 
                 if (this::obtainedItemListAdapter.isInitialized) {
                     obtainedItemListAdapter.stage = it
