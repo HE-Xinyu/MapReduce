@@ -19,10 +19,8 @@ class GameViewModel : ViewModel() {
         // TODO: player should spawn at a random room
         val curPlayer = Player(100, 50, 50, 50)
         curPlayer.roomIdx = 0
-        // for testing
-//        curPlayer.obtainedItems.add(AllItems.first())
-        player.value = curPlayer
 
+        player.value = curPlayer
         stage.value = Stage(1)
     }
 
