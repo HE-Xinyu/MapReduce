@@ -257,15 +257,15 @@ class GameActivity : AppCompatActivity() {
                             (Stage.SideLength - 1) / 2.0 * RoomInterval
                         val paddingX = (containerWidth / 2 - dpToPixel(midContentLength)).toInt()
                         val paddingY = (containerHeight / 2 - dpToPixel(midContentLength)).toInt()
-                        button.x = paddingX + mapContainer.x + room.x * (
+                        button.x = paddingX + room.x * (
                             dpToPixel(
                                 (RoomDisplaySize + RoomInterval).toDouble()
-                            ).toInt()
+                            ).toFloat()
                             )
-                        button.y = paddingY + mapContainer.y + room.y * (
+                        button.y = paddingY + room.y * (
                             dpToPixel(
                                 (RoomDisplaySize + RoomInterval).toDouble()
-                            ).toInt()
+                            ).toFloat()
                             )
                         button.setOnClickListener { roomView ->
                             onRoomClick(roomView)
