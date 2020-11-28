@@ -17,7 +17,7 @@ data class Enemy(
     var kind: EnemyKind = EnemyKind.NORMAL
 ) : IAbleToFight
 // assume player(100, 50, 50, 50)
-val testEnemy = Enemy(100, 100, 100, 100, "test enemy name")
+val testEnemy = Enemy(10, 10, 10, 10, "test enemy name")
 val littleBear = Enemy(60, 30, 10, 50, "Little Bear")
 val rotHound = Enemy(40, 40, 10, 50, "Rot Hound")
 val poppingCandy = Enemy(20, 80, 10, 40, "Popping candy")

@@ -305,11 +305,10 @@ class GameActivity : AppCompatActivity() {
                 val (canReach, needPath) = playerRoom.canReach(room, stage)
                 if (canReach && !needPath) {
                     when (room.kind) {
-                        RoomKind.BOSS -> button.setBackgroundResource(R.drawable.boss606024)
-                        RoomKind.CHEST -> button.setBackgroundResource(R.drawable.chest606024)
-                        RoomKind.NORMAL -> button.setBackgroundResource(R.drawable.n606024)
-                        // TODO: find a logo for shop.
-                        RoomKind.SHOP -> button.setBackgroundResource(R.drawable.boss606024)
+                        RoomKind.BOSS -> button.setBackgroundResource(R.drawable.diablo_skull)
+                        RoomKind.CHEST -> button.setBackgroundResource(R.drawable.chest)
+                        RoomKind.NORMAL -> button.setBackgroundResource(R.drawable.sword_clash)
+                        RoomKind.SHOP -> button.setBackgroundResource(R.drawable.swap_bag)
                     }
                 } else { button.setBackgroundColor(Color.parseColor("#ffde7d")) }
             } else {
@@ -317,7 +316,7 @@ class GameActivity : AppCompatActivity() {
             }
 
             if (player.roomIdx == idx) {
-                button.setBackgroundResource(R.drawable.player)
+                button.setBackgroundResource(R.drawable.spartan_helmet)
             }
 
             // use generateViewId() to avoid conflicts (hopefully)
