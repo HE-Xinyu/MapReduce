@@ -41,7 +41,7 @@ class EnemyListAdapter(
                     val award = AwardSampler.sample(player, enemy)
                     // TODO: tell player about the award and the battle result
                     Log.d("aaa", award.toString())
-                    award.applyTo(player)
+                    award.applyTo(player, stage)
 
                     room.enemies!!.remove(enemy)
                     if (stage.curStage == Stage.MaxStages && room.kind == RoomKind.BOSS) {

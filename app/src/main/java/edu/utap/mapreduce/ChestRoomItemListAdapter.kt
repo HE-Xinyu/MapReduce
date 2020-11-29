@@ -35,6 +35,7 @@ class ChestRoomItemListAdapter(
 
             itemView.setOnClickListener {
                 player.obtainedItems.add(item)
+                item.onObtained(player, stage)
                 player.status = PlayerStatus.INTERACT_WITH_STAGE
                 model.setPlayer(player)
                 model.setStage(stage)

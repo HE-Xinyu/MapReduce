@@ -200,8 +200,7 @@ class GameActivity : AppCompatActivity() {
             }
             RoomKind.CHEST -> {
                 if (!fromSwitch) {
-                    val itemList = listOf(Item.fetchItem(player.obtainedItems)!!)
-                    Log.d("aaa", itemList[0].name)
+                    val itemList = Item.fetchItems(player.obtainedItems, 3)!!
                     if (this::chestRoomItemListAdapter.isInitialized) {
                         chestRoomItemListAdapter.player = player
                         chestRoomItemListAdapter.stage = stage
@@ -344,7 +343,7 @@ class GameActivity : AppCompatActivity() {
             player.numKeys--
             player.numChests--
             // TODO: tell player about the award!
-            AwardSampler.sampleChest(player).applyTo(player)
+            AwardSampler.sampleChest(player).applyTo(player, stage)
 
             model.setPlayer(player)
         }

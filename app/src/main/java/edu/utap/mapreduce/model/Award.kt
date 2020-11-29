@@ -78,12 +78,13 @@ class Award {
         return this
     }
 
-    fun applyTo(player: Player) {
+    fun applyTo(player: Player, stage: Stage) {
         _item?.let {
             if (player.obtainedItems.contains(it)) {
                 Log.e("aaa", "Player has already obtained this item!")
             } else {
                 player.obtainedItems.add(it)
+                it.onObtained(player, stage)
             }
         }
 
