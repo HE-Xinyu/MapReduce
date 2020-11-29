@@ -16,12 +16,15 @@ class BattleSimulator {
             Simulate 1 vs 1 battle
          */
         fun oneOnOne(player: Player, enemy: Enemy, stage: Stage): BattleResult {
+            player.obtainedItems.sortBy {
+                it.priority
+            }
+
             player.obtainedItems.forEach {
-                if (it.kind == ItemKind.PASSIVE) {
-                    it.onStartBattle(player, enemy, stage)
-                }
+                it.onStartBattle(player, enemy, stage)
             }
             var round = 1
+            var result = BattleResult.LOSE
             while (round < MaxRound) {
                 round++
                 val damageToEnemy = max(player.atk - enemy.def, 0)
@@ -29,24 +32,33 @@ class BattleSimulator {
                 if (player.spd >= enemy.spd) {
                     enemy.hp -= damageToEnemy
                     if (enemy.isDead()) {
-                        return BattleResult.WIN
+                        result = BattleResult.WIN
+                        break
                     }
                     player.hp -= damageToPlayer
                     if (player.isDead()) {
-                        return BattleResult.LOSE
+                        result = BattleResult.LOSE
+                        break
                     }
                 } else {
                     player.hp -= damageToPlayer
                     if (player.isDead()) {
-                        return BattleResult.LOSE
+                        result = BattleResult.LOSE
+                        break
                     }
                     enemy.hp -= damageToEnemy
                     if (enemy.isDead()) {
-                        return BattleResult.WIN
+                        result = BattleResult.WIN
+                        break
                     }
                 }
             }
-            return BattleResult.LOSE
+
+            player.obtainedItems.forEach {
+                it.onEndBattle(player, enemy, stage)
+            }
+
+            return result
         }
     }
 }

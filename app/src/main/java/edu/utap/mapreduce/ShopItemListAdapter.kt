@@ -36,7 +36,9 @@ class ShopItemListAdapter(
                     player.numCoins -= price
                     when (shopItem.kind) {
                         ShopItemKind.ITEM -> {
-                            player.obtainedItems.add(shopItem.amountOrItem as Item)
+                            val item = shopItem.amountOrItem as Item
+                            player.obtainedItems.add(item)
+                            item.onObtained(player, stage)
                         }
                         ShopItemKind.KEYS -> {
                             player.numKeys += shopItem.amountOrItem as Int
