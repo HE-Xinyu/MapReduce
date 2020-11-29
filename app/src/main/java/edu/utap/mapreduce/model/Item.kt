@@ -2,9 +2,24 @@ package edu.utap.mapreduce.model
 
 import java.lang.Exception
 import kotlin.math.min
+import kotlin.properties.Delegates
 import kotlin.random.Random
 
-val AllItems = setOf(Item1(), Item2())
+val AllItems = setOf(
+    Protector(),
+    HealthRecover(),
+    SwordRepair(),
+    ShieldRepair(),
+    ShoesRepair(),
+    BronzeShield(),
+    BronzeSword(),
+    SilverShield(),
+    SilverSword(),
+    GoldenShield(),
+    GoldenSword(),
+    StrawShoes(),
+    RunningShoes(),
+)
 
 enum class ItemKind {
     ACTIVATED,
@@ -23,7 +38,9 @@ abstract class Item(
     val desc: String,
     val kind: ItemKind,
     val level: RareLevel = RareLevel.NORMAL,
-    val recharge: Int = 0
+    val recharge: Int = 0,
+    // item with lower priority will activate before a higher one
+    val priority: Int = 100,
 ) {
     companion object {
         fun fetchItem(excludedItems: List<Item>): Item? {
@@ -50,14 +67,38 @@ abstract class Item(
             }
             throw Exception("The item selection algorithm is broken")
         }
+
+        fun fetchItems(excludedItems: List<Item>, n: Int): List<Item>? {
+            if (excludedItems.size == AllItems.size) {
+                return null
+            }
+
+            val n = min(n, AllItems.size - excludedItems.size)
+
+            val ret = emptyList<Item>().toMutableList()
+            val excludedItems = excludedItems.toMutableList()
+
+            for (i in 0 until n) {
+                val item = fetchItem(excludedItems)!!
+                ret.add(item)
+                excludedItems.add(item)
+            }
+            return ret
+        }
     }
 
     var curRecharge = recharge
 
     // START OF the functions to override in each items
 
-    // called on every start of the battle
+    // called on every start of battles
     open fun onStartBattle(player: Player, enemy: Enemy, stage: Stage) {}
+
+    // called on every end of battles
+    open fun onEndBattle(player: Player, enemy: Enemy, stage: Stage) {}
+
+    // called when the item is obtained by the player (i.e. only call ONCE)
+    open fun onObtained(player: Player, stage: Stage) {}
 
     // called on every activation of the item.
     // only effective for the activated items.
@@ -66,7 +107,7 @@ abstract class Item(
     // END OF the functions to override in each items
 
     fun canBeActivated(): Boolean {
-        return kind == ItemKind.PASSIVE || curRecharge == recharge
+        return kind == ItemKind.ACTIVATED && curRecharge == recharge
     }
 
     fun displayRecharge(): String {
@@ -114,22 +155,135 @@ abstract class Item(
     }
 }
 
-class Item1 : Item("test item", "test desc", ItemKind.PASSIVE) {
+class Protector :
+    Item("Protector", "Block the first 10 HP damage of each battle", ItemKind.PASSIVE) {
+    private var hpBeforeStart by Delegates.notNull<Int>()
     override fun onStartBattle(player: Player, enemy: Enemy, stage: Stage) {
         super.onStartBattle(player, enemy, stage)
+        hpBeforeStart = player.hp
+        player.hp += 10
+    }
+
+    override fun onEndBattle(player: Player, enemy: Enemy, stage: Stage) {
+        player.hp = min(hpBeforeStart, player.hp)
+    }
+}
+
+class HealthRecover : Item(
+    "Health Recover",
+    "Gain 5 HP at the end of each battle",
+    ItemKind.PASSIVE,
+    RareLevel.SPECIAL,
+    0,
+    200
+) {
+    override fun onEndBattle(player: Player, enemy: Enemy, stage: Stage) {
         player.hp += 5
     }
 }
 
-class Item2 : Item(
-    "test activated item",
-    "test activated item desc",
-    ItemKind.ACTIVATED,
-    RareLevel.NORMAL,
-    4
+class SwordRepair : Item(
+    "Sword Repair",
+    "Gain 2 ATK at the end of each battle",
+    ItemKind.PASSIVE,
+    RareLevel.SPECIAL
 ) {
-    override fun doActivate(player: Player, stage: Stage) {
-        super.doActivate(player, stage)
+    override fun onEndBattle(player: Player, enemy: Enemy, stage: Stage) {
+        player.atk += 2
+    }
+}
+
+class ShieldRepair : Item(
+    "Shield Repair",
+    "Gain 2 DEF at the end of each battle",
+    ItemKind.PASSIVE,
+    RareLevel.SPECIAL
+) {
+    override fun onEndBattle(player: Player, enemy: Enemy, stage: Stage) {
+        player.def += 2
+    }
+}
+
+class ShoesRepair : Item(
+    "Shoes Repair",
+    "Gain 2 SPD at the end of each battle",
+    ItemKind.PASSIVE,
+    RareLevel.SPECIAL
+) {
+    override fun onEndBattle(player: Player, enemy: Enemy, stage: Stage) {
+        player.spd += 2
+    }
+}
+
+class BronzeSword : Item("Bronze Sword", "Gain 5 ATK when obtained this item", ItemKind.PASSIVE) {
+    override fun onObtained(player: Player, stage: Stage) {
+        player.atk += 5
+    }
+}
+
+class SilverSword : Item(
+    "Silver Sword",
+    "Gain 10 ATK when obtained this item",
+    ItemKind.PASSIVE,
+    RareLevel.SPECIAL
+) {
+    override fun onObtained(player: Player, stage: Stage) {
+        player.atk += 10
+    }
+}
+
+class GoldenSword : Item(
+    "Golden Sword",
+    "Gain 20 ATK when obtained this item",
+    ItemKind.PASSIVE,
+    RareLevel.VERY_SPECIAL
+) {
+    override fun onObtained(player: Player, stage: Stage) {
+        player.atk += 20
+    }
+}
+
+class BronzeShield : Item("Bronze Shield", "Gain 5 DEF when obtained this item", ItemKind.PASSIVE) {
+    override fun onObtained(player: Player, stage: Stage) {
+        player.def += 5
+    }
+}
+
+class SilverShield : Item(
+    "Silver Shield",
+    "Gain 10 DEF when obtained this item",
+    ItemKind.PASSIVE,
+    RareLevel.SPECIAL
+) {
+    override fun onObtained(player: Player, stage: Stage) {
+        player.def += 10
+    }
+}
+
+class GoldenShield : Item(
+    "Golden Shield",
+    "Gain 20 DEF when obtained this item",
+    ItemKind.PASSIVE,
+    RareLevel.VERY_SPECIAL
+) {
+    override fun onObtained(player: Player, stage: Stage) {
+        player.def += 20
+    }
+}
+
+class StrawShoes : Item("Straw Shoes", "Gain 5 SPD when obtained this item", ItemKind.PASSIVE) {
+    override fun onObtained(player: Player, stage: Stage) {
         player.spd += 5
+    }
+}
+
+class RunningShoes : Item(
+    "Running Shoes",
+    "Gain 10 SPD when obtained this item",
+    ItemKind.PASSIVE,
+    RareLevel.SPECIAL
+) {
+    override fun onObtained(player: Player, stage: Stage) {
+        player.spd += 10
     }
 }
