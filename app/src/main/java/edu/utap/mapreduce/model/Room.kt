@@ -16,7 +16,7 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
 
         TODO: randomly chosen from AllEnemies
      */
-    var enemies: MutableList<Enemy>? = listOf(testEnemy.copy()).toMutableList()
+    var enemies: MutableList<Enemy>? = AllEnemies.toMutableList()
 
     /*
         Whether the room is visited by the user.

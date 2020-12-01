@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.ScrollView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +32,7 @@ import kotlinx.android.synthetic.main.activity_game.defV
 import kotlinx.android.synthetic.main.activity_game.hpV
 import kotlinx.android.synthetic.main.activity_game.itemsContainer
 import kotlinx.android.synthetic.main.activity_game.keysV
+import kotlinx.android.synthetic.main.activity_game.logB
 import kotlinx.android.synthetic.main.activity_game.mapContainer
 import kotlinx.android.synthetic.main.activity_game.pathsV
 import kotlinx.android.synthetic.main.activity_game.spdV
@@ -46,6 +49,8 @@ class GameActivity : AppCompatActivity() {
     private lateinit var chestRoomItemListAdapter: ChestRoomItemListAdapter
     private lateinit var shopItemListAdapter: ShopItemListAdapter
     private lateinit var roomDetailV: RecyclerView
+    private lateinit var logContainer: ScrollView
+    private lateinit var gameLogV: TextView
 
     // room view id -> room index
     private var viewId2Idx = mutableMapOf<Int, Int>()
@@ -57,7 +62,7 @@ class GameActivity : AppCompatActivity() {
     companion object {
         private const val RoomDisplaySize = 60
         private const val RoomInterval = 15
-        private val SwitchTextList = listOf("SHOW ROOM DETAIL", "SHOW STAGE")
+        private val SwitchTextList = listOf("SHOW ROOM DETAIL", "SHOW STAGE", "GAME LOG")
         const val PlayerWins = "winOrNot"
     }
 
@@ -86,6 +91,16 @@ class GameActivity : AppCompatActivity() {
         when (button.text) {
             SwitchTextList[0] -> drawRoomDetail(stage.rooms[player.roomIdx], fromSwitch = true)
             SwitchTextList[1] -> redrawStage(force = true)
+            else -> Log.e("aaa", "Impossible button text ${button.text}")
+        }
+    }
+
+    private fun onLogButtonClick(button: View) {
+        button as Button
+
+        when (button.text) {
+            SwitchTextList[1] -> redrawStage(force = true)
+            SwitchTextList[2] -> drawGameLog(fromSwitch = true)
             else -> Log.e("aaa", "Impossible button text ${button.text}")
         }
     }
@@ -173,6 +188,21 @@ class GameActivity : AppCompatActivity() {
         startActivity(resultIntent)
     }
 
+    private fun drawGameLog(fromSwitch: Boolean = false) {
+        logB.text = SwitchTextList[1]
+        mapContainer.removeAllViews()
+        logContainer = ScrollView(this)
+        logContainer.layoutParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
+        )
+        gameLogV = TextView(this)
+        gameLogV.text = logger.show()
+
+        logContainer.addView(gameLogV)
+        mapContainer.addView(logContainer)
+    }
+
     private fun drawRoomDetail(room: Room, fromSwitch: Boolean = false) {
         switchV.text = SwitchTextList[1]
         mapContainer.removeAllViews()
@@ -257,6 +287,7 @@ class GameActivity : AppCompatActivity() {
         }
 
         switchV.text = SwitchTextList[0]
+        logB.text = SwitchTextList[2]
         mapContainer.removeAllViews()
         viewId2Idx.clear()
 
@@ -400,6 +431,9 @@ class GameActivity : AppCompatActivity() {
 
         switchV.setOnClickListener {
             onSwitchButtonClick(it)
+        }
+        logB.setOnClickListener {
+            onLogButtonClick(it)
         }
     }
 
