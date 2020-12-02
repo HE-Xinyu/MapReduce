@@ -30,7 +30,7 @@ class BattleSimulator {
             var result = BattleResult.LOSE
             while (round < MaxRound) {
                 when (enemy) {
-                    bigDevilArm -> if (round == 2) { thief(player, enemy) }
+                    bigDevilArm -> if (round == 8) { speedUp(enemy) }
                     bigDevilTail -> toxin(player, round)
                     bigDevilHead -> weak(player, enemy)
                 }
@@ -88,14 +88,14 @@ class BattleSimulator {
             if (round < 5) {
                 player.hp -= 8
                 logger.log(
-                    "TOXIN: In the next ${4 - round} rounds, player will reduce 8 hp every time"
+                    "TOXIN: In the next ${5 - round} rounds, player will reduce 8 hp every time"
                 )
             }
         }
 
-        private fun thief(player: Player, enemy: Enemy) {
-            player.obtainedItems.remove(player.obtainedItems[0])
-            logger.log("THIEF: ${enemy.name} has stolen the ${player.obtainedItems[0]}")
+        private fun speedUp(enemy: Enemy) {
+            enemy.spd += (enemy.spd * 0.5).toInt()
+            logger.log("SPEEDED-UP: The speed of ${enemy.name} has increased")
         }
     }
 }

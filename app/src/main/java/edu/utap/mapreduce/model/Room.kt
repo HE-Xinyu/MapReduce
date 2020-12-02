@@ -11,12 +11,40 @@ enum class RoomKind {
 }
 
 class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
-    /*
-        Currently every room contains one enemy
 
-        TODO: randomly chosen from AllEnemies
-     */
-    var enemies: MutableList<Enemy>? = AllEnemies.toMutableList()
+    var enemies: MutableList<Enemy>? = listOf(
+        enemyFilter(),
+        enemyFilter(),
+        enemyFilter(),
+        eliteEnemy(),
+    ).toMutableList()
+
+    private fun enemyFilter(): Enemy {
+        return when (kind) {
+            RoomKind.NORMAL -> {
+                AllEnemies.filter {
+                    it.kind == EnemyKind.NORMAL
+                }.random().copy()
+            }
+            RoomKind.BOSS -> {
+                AllEnemies.filter {
+                    it.kind == EnemyKind.BOSS
+                }.random().copy()
+            }
+            else -> AllEnemies[0].copy()
+        }
+    }
+
+    private fun eliteEnemy(): Enemy {
+        return when (kind) {
+            RoomKind.NORMAL -> {
+                AllEnemies.filter {
+                    it.kind == EnemyKind.ELITE
+                }.random().copy()
+            }
+            else -> AllEnemies[0].copy()
+        }
+    }
 
     /*
         Whether the room is visited by the user.

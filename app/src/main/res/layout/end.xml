@@ -32,7 +32,8 @@
             android:layout_gravity="center"
             android:text=""
             android:textColor="@color/white12"
-            android:textSize="60dp" />
+            android:textSize="60dp"
+            android:fontFamily=""/>
 
     </LinearLayout>
 
