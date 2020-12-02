@@ -1,7 +1,6 @@
 package edu.utap.mapreduce.model
 
-import android.util.Log
-import edu.utap.mapreduce.GameLogger
+import edu.utap.mapreduce.GameActivity
 import kotlin.math.max
 
 // maybe unnecessary here?
@@ -13,7 +12,7 @@ enum class BattleResult {
 class BattleSimulator {
     companion object {
         private const val MaxRound = 1000
-        private val logger = GameLogger()
+        private val logger = GameActivity.logger
 
         /*
             Simulate 1 vs 1 battle
@@ -64,7 +63,6 @@ class BattleSimulator {
                     }
                     enemy.hp -= damageToEnemy
                     logger.log(" You caused $damageToEnemy damage to ${enemy.name}")
-                    Log.d("cccc", logger.show().toString())
                     if (enemy.isDead()) {
                         player.obtainedItems = originItems
                         result = BattleResult.WIN

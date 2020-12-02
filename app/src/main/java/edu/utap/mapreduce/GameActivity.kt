@@ -41,7 +41,6 @@ import kotlinx.android.synthetic.main.activity_game.switchV
 
 class GameActivity : AppCompatActivity() {
     private val model: GameViewModel by viewModels()
-    private val logger = GameLogger()
     private lateinit var stage: Stage
     private lateinit var player: Player
     private lateinit var obtainedItemListAdapter: ObtainedItemListAdapter
@@ -64,6 +63,7 @@ class GameActivity : AppCompatActivity() {
         private const val RoomInterval = 15
         private val SwitchTextList = listOf("SHOW ROOM DETAIL", "SHOW STAGE", "GAME LOG")
         const val PlayerWins = "winOrNot"
+        val logger = GameLogger()
     }
 
     private fun dpToPixel(dp: Double): Double {
@@ -198,6 +198,7 @@ class GameActivity : AppCompatActivity() {
         )
         gameLogV = TextView(this)
         gameLogV.text = logger.show()
+        gameLogV.setTextColor(Color.parseColor("#f8f3d4"))
 
         logContainer.addView(gameLogV)
         mapContainer.addView(logContainer)
@@ -290,6 +291,8 @@ class GameActivity : AppCompatActivity() {
         logB.text = SwitchTextList[2]
         mapContainer.removeAllViews()
         viewId2Idx.clear()
+
+        mapContainer.setBackgroundResource(R.drawable.dungeon1)
 
         val playerRoom = stage.rooms[player.roomIdx]
 
