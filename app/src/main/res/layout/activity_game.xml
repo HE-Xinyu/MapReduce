@@ -26,7 +26,7 @@
         android:id="@+id/logB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="GAME LOG"
+        android:text="SHOW LOG"
         app:layout_constraintEnd_toStartOf="@+id/timerV"
         app:layout_constraintStart_toEndOf="@+id/switchV"
         app:layout_constraintTop_toTopOf="parent" />

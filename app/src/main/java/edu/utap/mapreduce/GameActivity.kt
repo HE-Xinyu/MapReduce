@@ -61,7 +61,8 @@ class GameActivity : AppCompatActivity() {
     companion object {
         private const val RoomDisplaySize = 60
         private const val RoomInterval = 15
-        private val SwitchTextList = listOf("SHOW ROOM DETAIL", "SHOW STAGE", "GAME LOG")
+        private val SwitchTextList = listOf("SHOW ROOM DETAIL", "SHOW STAGE")
+        private val GameLogTextList = listOf("SHOW LOG", "HIDE LOG")
         const val PlayerWins = "winOrNot"
         val logger = GameLogger()
     }
@@ -99,8 +100,17 @@ class GameActivity : AppCompatActivity() {
         button as Button
 
         when (button.text) {
-            SwitchTextList[1] -> redrawStage(force = true)
-            SwitchTextList[2] -> drawGameLog(fromSwitch = true)
+            GameLogTextList[0] -> drawGameLog()
+            GameLogTextList[1] -> {
+                button.text = GameLogTextList[0]
+                when (switchV.text) {
+                    SwitchTextList[0] -> redrawStage(force = true)
+                    SwitchTextList[1] -> drawRoomDetail(
+                        stage.rooms[player.roomIdx],
+                        fromSwitch = true
+                    )
+                }
+            }
             else -> Log.e("aaa", "Impossible button text ${button.text}")
         }
     }
@@ -188,8 +198,8 @@ class GameActivity : AppCompatActivity() {
         startActivity(resultIntent)
     }
 
-    private fun drawGameLog(fromSwitch: Boolean = false) {
-        logB.text = SwitchTextList[1]
+    private fun drawGameLog() {
+        logB.text = GameLogTextList[1]
         mapContainer.removeAllViews()
         logContainer = ScrollView(this)
         logContainer.layoutParams = FrameLayout.LayoutParams(
@@ -219,6 +229,7 @@ class GameActivity : AppCompatActivity() {
 
         when (room.kind) {
             RoomKind.NORMAL, RoomKind.BOSS -> {
+                room.fillEnemies()
                 if (this::enemyListAdapter.isInitialized) {
                     enemyListAdapter.player = player
                     enemyListAdapter.room = room
@@ -288,7 +299,6 @@ class GameActivity : AppCompatActivity() {
         }
 
         switchV.text = SwitchTextList[0]
-        logB.text = SwitchTextList[2]
         mapContainer.removeAllViews()
         viewId2Idx.clear()
 
@@ -362,6 +372,8 @@ class GameActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
+
+        logger.clear()
 
         chestsV.setOnClickListener {
             if (player.numChests == 0) {
