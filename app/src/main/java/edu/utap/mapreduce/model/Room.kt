@@ -1,6 +1,8 @@
 package edu.utap.mapreduce.model
 
+import android.util.Log
 import kotlin.math.abs
+import kotlin.random.Random
 
 // expect more to come!
 enum class RoomKind {
@@ -11,12 +13,44 @@ enum class RoomKind {
 }
 
 class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
-    /*
-        Currently every room contains one enemy
+    var enemies: MutableList<Enemy>? = null
 
-        TODO: randomly chosen from AllEnemies
-     */
-    var enemies: MutableList<Enemy>? = listOf(testEnemy.copy()).toMutableList()
+    fun fillEnemies() {
+        if (kind == RoomKind.CHEST || kind == RoomKind.SHOP) {
+            Log.e("aaa", "you should not fill enemies in this room")
+            return
+        }
+
+        if (enemies != null) {
+            // already filled the enemies.
+            return
+        }
+
+        val numEnemies = if (kind == RoomKind.BOSS) 1 else Random.nextInt(1, 4)
+        enemies = emptyList<Enemy>().toMutableList()
+
+        for (i in 0 until numEnemies) {
+            enemies!!.add(sampleEnemy())
+        }
+    }
+
+    private fun sampleEnemy(): Enemy {
+        return when (kind) {
+            RoomKind.NORMAL -> {
+                AllEnemies.filter {
+                    it.kind == EnemyKind.NORMAL || it.kind == EnemyKind.ELITE
+                }.random().copy()
+            }
+            RoomKind.BOSS -> {
+                AllEnemies.filter {
+                    it.kind == EnemyKind.BOSS
+                }.random().copy()
+            }
+            else -> {
+                throw Exception("Try to sample enemy in non-battle rooms")
+            }
+        }
+    }
 
     /*
         Whether the room is visited by the user.

@@ -24,6 +24,7 @@ class EnemyListAdapter(
 ) : RecyclerView.Adapter<EnemyListAdapter.VH>() {
     inner class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nameView = itemView.findViewById<TextView>(R.id.enemyNameV)
+        private val logger = GameActivity.logger
 
         fun bind(pos: Int) {
             val enemy = room.enemies!![pos]
@@ -39,7 +40,8 @@ class EnemyListAdapter(
 
                 if (result == BattleResult.WIN) {
                     val award = AwardSampler.sample(player, enemy)
-                    // TODO: tell player about the award and the battle result
+                    // TODO: tell player about the award and the battle result: finished?
+                    logger.log("AWARD: You get the $award")
                     Log.d("aaa", award.toString())
                     award.applyTo(player, stage)
 

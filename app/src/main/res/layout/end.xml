@@ -31,8 +31,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text=""
-            android:textColor="#ffffff"
-            android:textSize="60dp" />
+            android:textColor="@color/white12"
+            android:textSize="60dp"
+            android:fontFamily=""/>
 
     </LinearLayout>
 
@@ -50,7 +51,10 @@
             android:id="@+id/endBackButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="BACK">
+            android:text="BACK"
+            android:textSize="30sp"
+            android:textColor="@color/white12"
+            android:background="#00000000">
 
         </Button>
 

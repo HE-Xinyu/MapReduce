@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.ScrollView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +32,7 @@ import kotlinx.android.synthetic.main.activity_game.defV
 import kotlinx.android.synthetic.main.activity_game.hpV
 import kotlinx.android.synthetic.main.activity_game.itemsContainer
 import kotlinx.android.synthetic.main.activity_game.keysV
+import kotlinx.android.synthetic.main.activity_game.logB
 import kotlinx.android.synthetic.main.activity_game.mapContainer
 import kotlinx.android.synthetic.main.activity_game.pathsV
 import kotlinx.android.synthetic.main.activity_game.spdV
@@ -38,7 +41,6 @@ import kotlinx.android.synthetic.main.activity_game.switchV
 
 class GameActivity : AppCompatActivity() {
     private val model: GameViewModel by viewModels()
-    private val logger = GameLogger()
     private lateinit var stage: Stage
     private lateinit var player: Player
     private lateinit var obtainedItemListAdapter: ObtainedItemListAdapter
@@ -46,6 +48,8 @@ class GameActivity : AppCompatActivity() {
     private lateinit var chestRoomItemListAdapter: ChestRoomItemListAdapter
     private lateinit var shopItemListAdapter: ShopItemListAdapter
     private lateinit var roomDetailV: RecyclerView
+    private lateinit var logContainer: ScrollView
+    private lateinit var gameLogV: TextView
 
     // room view id -> room index
     private var viewId2Idx = mutableMapOf<Int, Int>()
@@ -58,7 +62,9 @@ class GameActivity : AppCompatActivity() {
         private const val RoomDisplaySize = 60
         private const val RoomInterval = 15
         private val SwitchTextList = listOf("SHOW ROOM DETAIL", "SHOW STAGE")
+        private val GameLogTextList = listOf("SHOW LOG", "HIDE LOG")
         const val PlayerWins = "winOrNot"
+        val logger = GameLogger()
     }
 
     private fun dpToPixel(dp: Double): Double {
@@ -86,6 +92,25 @@ class GameActivity : AppCompatActivity() {
         when (button.text) {
             SwitchTextList[0] -> drawRoomDetail(stage.rooms[player.roomIdx], fromSwitch = true)
             SwitchTextList[1] -> redrawStage(force = true)
+            else -> Log.e("aaa", "Impossible button text ${button.text}")
+        }
+    }
+
+    private fun onLogButtonClick(button: View) {
+        button as Button
+
+        when (button.text) {
+            GameLogTextList[0] -> drawGameLog()
+            GameLogTextList[1] -> {
+                button.text = GameLogTextList[0]
+                when (switchV.text) {
+                    SwitchTextList[0] -> redrawStage(force = true)
+                    SwitchTextList[1] -> drawRoomDetail(
+                        stage.rooms[player.roomIdx],
+                        fromSwitch = true
+                    )
+                }
+            }
             else -> Log.e("aaa", "Impossible button text ${button.text}")
         }
     }
@@ -173,6 +198,22 @@ class GameActivity : AppCompatActivity() {
         startActivity(resultIntent)
     }
 
+    private fun drawGameLog() {
+        logB.text = GameLogTextList[1]
+        mapContainer.removeAllViews()
+        logContainer = ScrollView(this)
+        logContainer.layoutParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
+        )
+        gameLogV = TextView(this)
+        gameLogV.text = logger.show()
+        gameLogV.setTextColor(Color.parseColor("#f8f3d4"))
+
+        logContainer.addView(gameLogV)
+        mapContainer.addView(logContainer)
+    }
+
     private fun drawRoomDetail(room: Room, fromSwitch: Boolean = false) {
         switchV.text = SwitchTextList[1]
         mapContainer.removeAllViews()
@@ -188,6 +229,7 @@ class GameActivity : AppCompatActivity() {
 
         when (room.kind) {
             RoomKind.NORMAL, RoomKind.BOSS -> {
+                room.fillEnemies()
                 if (this::enemyListAdapter.isInitialized) {
                     enemyListAdapter.player = player
                     enemyListAdapter.room = room
@@ -260,6 +302,8 @@ class GameActivity : AppCompatActivity() {
         mapContainer.removeAllViews()
         viewId2Idx.clear()
 
+        mapContainer.setBackgroundResource(R.drawable.dungeon1)
+
         val playerRoom = stage.rooms[player.roomIdx]
 
         stage.rooms.forEachIndexed { idx, room ->
@@ -282,15 +326,15 @@ class GameActivity : AppCompatActivity() {
                             (Stage.SideLength - 1) / 2.0 * RoomInterval
                         val paddingX = (containerWidth / 2 - dpToPixel(midContentLength)).toInt()
                         val paddingY = (containerHeight / 2 - dpToPixel(midContentLength)).toInt()
-                        button.x = paddingX + mapContainer.x + room.x * (
+                        button.x = paddingX + room.x * (
                             dpToPixel(
                                 (RoomDisplaySize + RoomInterval).toDouble()
-                            ).toInt()
+                            ).toFloat()
                             )
-                        button.y = paddingY + mapContainer.y + room.y * (
+                        button.y = paddingY + room.y * (
                             dpToPixel(
                                 (RoomDisplaySize + RoomInterval).toDouble()
-                            ).toInt()
+                            ).toFloat()
                             )
                         button.setOnClickListener { roomView ->
                             onRoomClick(roomView)
@@ -304,11 +348,10 @@ class GameActivity : AppCompatActivity() {
                 val (canReach, needPath) = playerRoom.canReach(room, stage)
                 if (canReach && !needPath) {
                     when (room.kind) {
-                        RoomKind.BOSS -> button.setBackgroundResource(R.drawable.boss606024)
-                        RoomKind.CHEST -> button.setBackgroundResource(R.drawable.chest606024)
-                        RoomKind.NORMAL -> button.setBackgroundResource(R.drawable.n606024)
-                        // TODO: find a logo for shop.
-                        RoomKind.SHOP -> button.setBackgroundResource(R.drawable.boss606024)
+                        RoomKind.BOSS -> button.setBackgroundResource(R.drawable.diablo_skull)
+                        RoomKind.CHEST -> button.setBackgroundResource(R.drawable.chest)
+                        RoomKind.NORMAL -> button.setBackgroundResource(R.drawable.sword_clash)
+                        RoomKind.SHOP -> button.setBackgroundResource(R.drawable.swap_bag)
                     }
                 } else { button.setBackgroundColor(Color.parseColor("#ffde7d")) }
             } else {
@@ -316,7 +359,7 @@ class GameActivity : AppCompatActivity() {
             }
 
             if (player.roomIdx == idx) {
-                button.setBackgroundResource(R.drawable.player)
+                button.setBackgroundResource(R.drawable.spartan_helmet)
             }
 
             // use generateViewId() to avoid conflicts (hopefully)
@@ -329,6 +372,8 @@ class GameActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
+
+        logger.clear()
 
         chestsV.setOnClickListener {
             if (player.numChests == 0) {
@@ -401,6 +446,9 @@ class GameActivity : AppCompatActivity() {
 
         switchV.setOnClickListener {
             onSwitchButtonClick(it)
+        }
+        logB.setOnClickListener {
+            onLogButtonClick(it)
         }
     }
 

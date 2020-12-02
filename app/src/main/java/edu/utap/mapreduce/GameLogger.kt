@@ -14,4 +14,8 @@ class GameLogger {
     fun show(): SpannableStringBuilder {
         return builder
     }
+
+    fun clear() {
+        builder.clear()
+    }
 }

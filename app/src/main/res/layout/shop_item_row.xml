@@ -8,7 +8,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:id="@+id/shopItemNameV"
-        android:textSize="16sp"
+        android:textSize="20sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/shopItemPriceV"
         app:layout_constraintStart_toStartOf="parent"/>
@@ -17,7 +17,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:id="@+id/shopItemPriceV"
-        android:textSize="16sp"
+        android:textSize="20sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@+id/shopItemNameV"
         app:layout_constraintEnd_toEndOf="parent"
