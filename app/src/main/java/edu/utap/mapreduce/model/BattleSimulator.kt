@@ -18,7 +18,6 @@ class BattleSimulator {
             Simulate 1 vs 1 battle
          */
         fun oneOnOne(player: Player, enemy: Enemy, stage: Stage): BattleResult {
-            val originItems = player.obtainedItems
             player.obtainedItems.sortBy {
                 it.priority
             }
@@ -41,7 +40,6 @@ class BattleSimulator {
                     enemy.hp -= damageToEnemy
                     logger.log(" You caused $damageToEnemy damage to ${enemy.name}")
                     if (enemy.isDead()) {
-                        player.obtainedItems = originItems
                         result = BattleResult.WIN
                         logger.log(" You $result the battle")
                         break
@@ -64,7 +62,6 @@ class BattleSimulator {
                     enemy.hp -= damageToEnemy
                     logger.log(" You caused $damageToEnemy damage to ${enemy.name}")
                     if (enemy.isDead()) {
-                        player.obtainedItems = originItems
                         result = BattleResult.WIN
                         logger.log(" You $result the battle")
                         break

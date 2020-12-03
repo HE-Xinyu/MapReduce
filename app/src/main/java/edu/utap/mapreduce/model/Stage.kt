@@ -5,7 +5,6 @@ import kotlin.random.Random
 
 class Stage(var curStage: Int) {
     // note: if we decide to change n as player progress, the rooms and paths need to be lateinit.
-    private val pathProb = 1.0
     var rooms = emptyList<Room>().toMutableList()
     var paths = List(SideLength * SideLength) {
         emptySet<Room>().toMutableSet()
@@ -14,6 +13,7 @@ class Stage(var curStage: Int) {
     companion object {
         const val MaxStages = 3
         const val SideLength: Int = 5
+        val PathProbs = listOf(0.9, 0.6, 0.3)
     }
 
     private fun doInit() {
@@ -22,22 +22,41 @@ class Stage(var curStage: Int) {
             emptySet<Room>().toMutableSet()
         }
 
+        val numBossRooms = 1
+        val numShops = 1
+        val numChestRooms = 2
+        val numNormalRooms = SideLength * SideLength - numBossRooms - numShops - numChestRooms
+
+        val roomKindList = emptyList<RoomKind>().toMutableList()
+        for (i in 0 until numBossRooms) {
+            roomKindList.add(RoomKind.BOSS)
+        }
+
+        for (i in 0 until numShops) {
+            roomKindList.add(RoomKind.SHOP)
+        }
+
+        for (i in 0 until numChestRooms) {
+            roomKindList.add(RoomKind.CHEST)
+        }
+
+        for (i in 0 until numNormalRooms) {
+            roomKindList.add(RoomKind.NORMAL)
+        }
+
+        roomKindList.shuffle()
+
         // 1. initialize rooms
         for (i in 0 until SideLength) {
             for (j in 0 until SideLength) {
-                val kind = if (i == SideLength - 1 && j == SideLength - 1)
-                    RoomKind.BOSS else RoomKind.NORMAL
+                val id = i * SideLength + j
                 /*
                     The room id is simply the index of it in the stage.
                     If two rooms are merged into one, then they share the same id.
                  */
-                rooms.add(Room(i, j, kind, i * SideLength + j))
+                rooms.add(Room(i, j, roomKindList[id], id))
             }
         }
-
-        // for testing
-        rooms[1].kind = RoomKind.CHEST
-        rooms[2].kind = RoomKind.SHOP
 
         /*
             2. Initialize paths
@@ -51,7 +70,7 @@ class Stage(var curStage: Int) {
             for (otherRoom in rooms) {
                 // prevent randomization twice
                 if (thisRoom.isAdjacent(otherRoom) && thisRoom.id < otherRoom.id) {
-                    if (Random.nextDouble() < pathProb) {
+                    if (Random.nextDouble() < PathProbs[curStage]) {
                         paths[thisRoom.id].add(otherRoom)
                         paths[otherRoom.id].add(thisRoom)
                     } else {

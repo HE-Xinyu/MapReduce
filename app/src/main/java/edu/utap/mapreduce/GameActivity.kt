@@ -262,7 +262,6 @@ class GameActivity : AppCompatActivity() {
             RoomKind.SHOP -> {
                 if (!fromSwitch) {
                     val itemList = ShopItem.sample(3, player).toMutableList()
-                    Log.d("aaa", itemList[0].showName())
                     if (this::shopItemListAdapter.isInitialized) {
                         shopItemListAdapter.player = player
                         shopItemListAdapter.stage = stage
@@ -343,10 +342,23 @@ class GameActivity : AppCompatActivity() {
                 }
             )
 
-            // draw buttons based on RoomKind
+            // draw buttons based on visit status and RoomKind
             if (!room.visited) {
                 val (canReach, needPath) = playerRoom.canReach(room, stage)
-                if (canReach && !needPath) {
+                var canSeeRoomKind = canReach && !needPath
+                when (room.kind) {
+                    RoomKind.BOSS -> {
+                        canSeeRoomKind = canSeeRoomKind || player.canSeeBossRoom
+                    }
+                    RoomKind.SHOP -> {
+                        canSeeRoomKind = canSeeRoomKind || player.canSeeShop
+                    }
+                    RoomKind.CHEST -> {
+                        canSeeRoomKind = canSeeRoomKind || player.canSeeChestRoom
+                    }
+                    else -> {}
+                }
+                if (canSeeRoomKind) {
                     when (room.kind) {
                         RoomKind.BOSS -> button.setBackgroundResource(R.drawable.diablo_skull)
                         RoomKind.CHEST -> button.setBackgroundResource(R.drawable.chest)

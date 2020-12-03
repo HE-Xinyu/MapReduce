@@ -1,6 +1,7 @@
 package edu.utap.mapreduce.model
 
 import edu.utap.mapreduce.IAbleToFight
+import kotlin.random.Random
 
 enum class PlayerStatus {
     WIN,
@@ -29,9 +30,20 @@ class Player(
 
     var status = PlayerStatus.INTERACT_WITH_STAGE
 
-    // TODO: need a field to indicate that the player is interacting in a room,
-    //       and hence his/her items cannot be activated.
+    /*
+        Abilities that can be changed by items
+     */
+    var canSeeChestRoom = false
+    var canSeeShop = false
+    var canSeeBossRoom = false
 
-    // TODO: need a field to indicate the item that the player is activating,
-    //      and hence the click behavior of a room may change.
+    fun initPosition(stage: Stage) {
+        while (true) {
+            roomIdx = Random.nextInt(Stage.SideLength * Stage.SideLength)
+            if (stage.rooms[roomIdx].kind == RoomKind.NORMAL) {
+                stage.rooms[roomIdx].visited = true
+                return
+            }
+        }
+    }
 }
