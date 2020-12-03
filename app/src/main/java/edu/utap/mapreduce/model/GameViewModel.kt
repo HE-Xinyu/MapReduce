@@ -16,12 +16,12 @@ class GameViewModel : ViewModel() {
     private var stage = MutableLiveData<Stage>()
 
     init {
-        // TODO: player should spawn at a random room
-        val curPlayer = Player(100, 50, 50, 50)
-        curPlayer.roomIdx = 0
+        val initialStage = Stage(1)
+        val initialPlayer = Player(100, 50, 50, 50)
+        initialPlayer.initPosition(initialStage)
 
-        player.value = curPlayer
-        stage.value = Stage(1)
+        player.value = initialPlayer
+        stage.value = initialStage
     }
 
     fun observePlayer(): LiveData<Player> = player

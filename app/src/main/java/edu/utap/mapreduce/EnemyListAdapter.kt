@@ -50,10 +50,10 @@ class EnemyListAdapter(
                         player.status = PlayerStatus.WIN
                     } else if (room.enemies!!.size == 0) {
                         // the room is cleared!
-                        // TODO: reward the player
                         player.status = PlayerStatus.INTERACT_WITH_STAGE
                         if (room.kind == RoomKind.BOSS) {
                             stage.advance()
+                            player.initPosition(stage)
                         }
                         model.setStage(stage)
                     }
