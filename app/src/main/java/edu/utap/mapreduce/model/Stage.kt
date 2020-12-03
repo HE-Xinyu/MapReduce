@@ -28,19 +28,19 @@ class Stage(var curStage: Int) {
         val numNormalRooms = SideLength * SideLength - numBossRooms - numShops - numChestRooms
 
         val roomKindList = emptyList<RoomKind>().toMutableList()
-        for (i in 0..numBossRooms) {
+        for (i in 0 until numBossRooms) {
             roomKindList.add(RoomKind.BOSS)
         }
 
-        for (i in 0..numShops) {
+        for (i in 0 until numShops) {
             roomKindList.add(RoomKind.SHOP)
         }
 
-        for (i in 0..numChestRooms) {
+        for (i in 0 until numChestRooms) {
             roomKindList.add(RoomKind.CHEST)
         }
 
-        for (i in 0..numNormalRooms) {
+        for (i in 0 until numNormalRooms) {
             roomKindList.add(RoomKind.NORMAL)
         }
 
