@@ -19,6 +19,10 @@ val AllItems = setOf(
     GoldenSword(),
     StrawShoes(),
     RunningShoes(),
+    BossRoomCompass(),
+    ChestRoomCompass(),
+    GreatCompass(),
+    ShopCompass(),
 )
 
 enum class ItemKind {
@@ -285,5 +289,51 @@ class RunningShoes : Item(
 ) {
     override fun onObtained(player: Player, stage: Stage) {
         player.spd += 10
+    }
+}
+
+class ChestRoomCompass : Item(
+    "Chest Room Compass",
+    "Review the position of chest rooms",
+    ItemKind.PASSIVE,
+    RareLevel.NORMAL
+) {
+    override fun onObtained(player: Player, stage: Stage) {
+        player.canSeeChestRoom = true
+    }
+}
+
+class ShopCompass : Item(
+    "Shop Compass",
+    "Review the position of shops",
+    ItemKind.PASSIVE,
+    RareLevel.NORMAL
+) {
+    override fun onObtained(player: Player, stage: Stage) {
+        player.canSeeShop = true
+    }
+}
+
+class BossRoomCompass : Item(
+    "Boss Room Compass",
+    "Review the position of boss room",
+    ItemKind.PASSIVE,
+    RareLevel.NORMAL
+) {
+    override fun onObtained(player: Player, stage: Stage) {
+        player.canSeeBossRoom = true
+    }
+}
+
+class GreatCompass : Item(
+    "Great Compass",
+    "Reveal the position of boss room, shops and chest rooms",
+    ItemKind.PASSIVE,
+    RareLevel.SPECIAL
+) {
+    override fun onObtained(player: Player, stage: Stage) {
+        player.canSeeBossRoom = true
+        player.canSeeShop = true
+        player.canSeeChestRoom = true
     }
 }

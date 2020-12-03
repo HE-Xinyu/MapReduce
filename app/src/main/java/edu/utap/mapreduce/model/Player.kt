@@ -30,6 +30,13 @@ class Player(
 
     var status = PlayerStatus.INTERACT_WITH_STAGE
 
+    /*
+        Abilities that can be changed by items
+     */
+    var canSeeChestRoom = false
+    var canSeeShop = false
+    var canSeeBossRoom = false
+
     fun initPosition(stage: Stage) {
         while (true) {
             roomIdx = Random.nextInt(Stage.SideLength * Stage.SideLength)
@@ -39,7 +46,4 @@ class Player(
             }
         }
     }
-
-    // TODO: need a field to indicate the item that the player is activating,
-    //      and hence the click behavior of a room may change.
 }
