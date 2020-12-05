@@ -18,7 +18,7 @@ class ShopItem(var kind: ShopItemKind, var amountOrItem: Any) {
             RareLevel.NORMAL to 20,
             RareLevel.SPECIAL to 40,
             RareLevel.VERY_SPECIAL to 80,
-            RareLevel.EXTREME to 100
+            RareLevel.LEGENDARY to 100
         )
 
         /*
