@@ -25,6 +25,7 @@ val AllItems = setOf(
     ShopCompass(),
     ChestFanatic(),
     MapReduce(),
+    Challenge(),
 )
 
 enum class ItemKind {
