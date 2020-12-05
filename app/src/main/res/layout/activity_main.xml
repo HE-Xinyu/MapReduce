@@ -22,10 +22,11 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:id="@+id/startTitle"
-        app:layout_constraintBottom_toTopOf="@id/startGameButton"
+        app:layout_constraintBottom_toTopOf="@id/buttonsInMain"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        >
 
         <TextView
             android:layout_width="wrap_content"
@@ -45,15 +46,31 @@
 
     </LinearLayout>
 
-    <TextView
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/buttonsInMain"
+        app:layout_constraintTop_toTopOf="@+id/startTitle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <TextView
+            android:id="@+id/startGameButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="START"
             android:textSize="30sp"
-            android:id="@+id/startGameButton"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@id/startTitle" />
+            android:padding="8dp"/>
+
+        <TextView
+            android:id="@+id/guideButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GUIDE"
+            android:textSize="30sp"
+            android:padding="8dp"/>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

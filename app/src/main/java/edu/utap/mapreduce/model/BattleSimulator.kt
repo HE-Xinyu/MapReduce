@@ -51,6 +51,9 @@ class BattleSimulator {
                     if (enemy.isDead()) {
                         result = BattleResult.WIN
                         logger.log(
+                            "You have a fight with ${enemy.name}"
+                        )
+                        logger.log(
                             "     Every round you caused $damageToEnemy damage to ${enemy.name}"
                         )
                         logger.log(
@@ -71,12 +74,6 @@ class BattleSimulator {
 
                     if (player.isDead()) {
                         result = BattleResult.LOSE
-                        logger.log(
-                            "     Every round ${enemy.name} caused $damageToPlayer damage to you"
-                        )
-                        logger.log(
-                            "     Every round You caused $damageToEnemy damage to ${enemy.name}"
-                        )
                         logger.log("You $result the battle")
                         break
                     }
@@ -84,6 +81,15 @@ class BattleSimulator {
 
                     if (enemy.isDead()) {
                         result = BattleResult.WIN
+                        logger.log(
+                            "You have a fight with ${enemy.name}"
+                        )
+                        logger.log(
+                            "     Every round ${enemy.name} caused $damageToPlayer damage to you"
+                        )
+                        logger.log(
+                            "     Every round You caused $damageToEnemy damage to ${enemy.name}"
+                        )
                         logger.log("You $result the battle")
                         break
                     }
