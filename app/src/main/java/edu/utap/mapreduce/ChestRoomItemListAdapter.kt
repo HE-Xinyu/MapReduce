@@ -1,5 +1,6 @@
 package edu.utap.mapreduce
 
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +27,7 @@ class ChestRoomItemListAdapter(
         fun bind(item: Item) {
             Log.d("aaa", "binding ${item.name}")
             nameView.text = item.name
+            nameView.setTextColor(Color.parseColor("#f8f3d4"))
             rechargeView.text = item.displayRecharge()
 
             itemView.setOnLongClickListener {

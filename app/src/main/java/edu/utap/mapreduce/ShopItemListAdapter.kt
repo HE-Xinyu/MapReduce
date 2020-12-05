@@ -1,5 +1,6 @@
 package edu.utap.mapreduce
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,7 +29,9 @@ class ShopItemListAdapter(
         fun bind(pos: Int) {
             val shopItem = shopItems[pos]
             nameView.text = shopItem.showName()
+            nameView.setTextColor(Color.parseColor("#f8f3d4"))
             priceView.text = shopItem.getPrice().toString()
+            priceView.setTextColor(Color.parseColor("#f8f3d4"))
 
             itemView.setOnClickListener {
                 val price = shopItem.getPrice()

@@ -1,5 +1,6 @@
 package edu.utap.mapreduce
 
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -29,6 +30,7 @@ class EnemyListAdapter(
         fun bind(pos: Int) {
             val enemy = room.enemies!![pos]
             nameView.text = enemy.name
+            nameView.setTextColor(Color.parseColor("#f8f3d4"))
             itemView.setOnClickListener {
                 /*
                     battle happens here.
