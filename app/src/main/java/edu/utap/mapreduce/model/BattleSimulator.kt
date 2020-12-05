@@ -1,5 +1,6 @@
 package edu.utap.mapreduce.model
 
+import android.util.Log
 import edu.utap.mapreduce.GameActivity
 import kotlin.math.max
 
@@ -27,6 +28,8 @@ class BattleSimulator {
             }
             var round = 1
             var result = BattleResult.LOSE
+
+            player.beginStatsBoost()
             while (round < MaxRound) {
                 when (enemy) {
                     bigDevilArm -> if (round == 8) { speedUp(enemy) }
@@ -68,6 +71,8 @@ class BattleSimulator {
                     }
                 }
             }
+            player.endStatsBoost()
+            Log.d("aaa", logger.show().toString())
 
             player.obtainedItems.forEach {
                 it.onEndBattle(player, enemy, stage)
