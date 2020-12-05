@@ -30,8 +30,10 @@ class ShopItemListAdapter(
             val shopItem = shopItems[pos]
             nameView.text = shopItem.showName()
             nameView.setTextColor(Color.parseColor("#f8f3d4"))
+            nameView.textSize = 20F
             priceView.text = shopItem.getPrice().toString()
             priceView.setTextColor(Color.parseColor("#f8f3d4"))
+            priceView.textSize = 20F
 
             itemView.setOnClickListener {
                 val price = shopItem.getPrice()

@@ -27,10 +27,11 @@ class ChestRoomItemListAdapter(
         fun bind(item: Item) {
             Log.d("aaa", "binding ${item.name}")
             nameView.text = item.name
-            nameView.setTextColor(Color.parseColor("#f8f3d4"))
             rechargeView.text = item.displayRecharge()
             nameView.setTextColor(Color.parseColor("#f8f3d4"))
             rechargeView.setTextColor(Color.parseColor("#f8f3d4"))
+            nameView.textSize = 20F
+            rechargeView.textSize = 20F
 
             itemView.setOnLongClickListener {
                 Toast.makeText(it.context, item.desc, Toast.LENGTH_SHORT).show()

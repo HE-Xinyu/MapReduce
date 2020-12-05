@@ -31,6 +31,7 @@ class EnemyListAdapter(
             val enemy = room.enemies!![pos]
             nameView.text = enemy.name
             nameView.setTextColor(Color.parseColor("#f8f3d4"))
+            nameView.textSize = 20F
             itemView.setOnClickListener {
                 /*
                     battle happens here.

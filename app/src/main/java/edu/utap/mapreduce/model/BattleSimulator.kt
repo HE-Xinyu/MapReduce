@@ -42,32 +42,43 @@ class BattleSimulator {
                 val damageToPlayer = max(enemy.atk - player.def, 0)
                 if (player.spd >= enemy.spd) {
                     enemy.hp -= damageToEnemy
-                    logger.log(" You caused $damageToEnemy damage to ${enemy.name}")
                     if (enemy.isDead()) {
                         result = BattleResult.WIN
-                        logger.log(" You $result the battle")
+                        logger.log(
+                            "     Every time you caused $damageToEnemy damage to ${enemy.name}"
+                        )
+                        logger.log(
+                            "     Every time ${enemy.name} caused $damageToPlayer damage to you"
+                        )
+                        logger.log("You $result the battle")
                         break
                     }
                     player.hp -= damageToPlayer
-                    logger.log("${enemy.name} caused $damageToPlayer damage to you")
+
                     if (player.isDead()) {
                         result = BattleResult.LOSE
-                        logger.log(" You $result the battle")
+                        logger.log("You $result the battle")
                         break
                     }
                 } else {
                     player.hp -= damageToPlayer
-                    logger.log("${enemy.name} caused $damageToPlayer damage to you")
+
                     if (player.isDead()) {
                         result = BattleResult.LOSE
-                        logger.log(" You $result the battle")
+                        logger.log(
+                            "     Every time ${enemy.name} caused $damageToPlayer damage to you"
+                        )
+                        logger.log(
+                            "     Every time You caused $damageToEnemy damage to ${enemy.name}"
+                        )
+                        logger.log("You $result the battle")
                         break
                     }
                     enemy.hp -= damageToEnemy
-                    logger.log(" You caused $damageToEnemy damage to ${enemy.name}")
+
                     if (enemy.isDead()) {
                         result = BattleResult.WIN
-                        logger.log(" You $result the battle")
+                        logger.log("You $result the battle")
                         break
                     }
                 }
@@ -82,21 +93,22 @@ class BattleSimulator {
 
         private fun weak(player: Player, enemy: Enemy) {
             enemy.atk += (player.def * 0.2).toInt()
-            logger.log("WEAK: ${enemy.name} have armor penetration")
+            logger.log("     WEAK: ${enemy.name} have armor penetration")
         }
 
         private fun toxin(player: Player, round: Int) {
             if (round < 5) {
                 player.hp -= 8
                 logger.log(
-                    "TOXIN: In the next ${5 - round} rounds, player will reduce 8 hp every time"
+                    "     TOXIN: In the next ${5 - round} rounds, " +
+                        "player will reduce 8 hp every time"
                 )
             }
         }
 
         private fun speedUp(enemy: Enemy) {
             enemy.spd += (enemy.spd * 0.5).toInt()
-            logger.log("SPEEDED-UP: The speed of ${enemy.name} has increased")
+            logger.log("     SPEEDED-UP: The speed of ${enemy.name} has increased")
         }
 
         private fun enemyLevelUp(enemy: Enemy, stage: Stage) {
