@@ -1,5 +1,6 @@
 package edu.utap.mapreduce.model
 
+import android.util.Log
 import edu.utap.mapreduce.GameActivity
 import kotlin.math.max
 
@@ -25,6 +26,9 @@ class BattleSimulator {
             player.obtainedItems.forEach {
                 it.onStartBattle(player, enemy, stage)
             }
+
+            enemyLevelUp(enemy, stage)
+
             var round = 1
             var result = BattleResult.LOSE
             while (round < MaxRound) {
@@ -93,6 +97,47 @@ class BattleSimulator {
         private fun speedUp(enemy: Enemy) {
             enemy.spd += (enemy.spd * 0.5).toInt()
             logger.log("SPEEDED-UP: The speed of ${enemy.name} has increased")
+        }
+
+        private fun enemyLevelUp(enemy: Enemy, stage: Stage) {
+            when (stage.curStage) {
+                2 ->
+                    {
+                        enemy.hp = (enemy.hp * 1.1).toInt()
+                        enemy.atk = (enemy.atk * 1.1).toInt()
+                        enemy.def = (enemy.def * 1.1).toInt()
+                        enemy.spd = (enemy.spd * 1.1).toInt()
+                        Log.d(
+                            "ccccc",
+                            enemy.name + enemy.hp.toString() +
+                                enemy.atk.toString() + enemy.spd.toString()
+                        )
+                    }
+                3 ->
+                    {
+                        enemy.hp = (enemy.hp * 1.2).toInt()
+                        enemy.atk = (enemy.atk * 1.2).toInt()
+                        enemy.def = (enemy.def * 1.2).toInt()
+                        enemy.spd = (enemy.spd * 1.2).toInt()
+                        Log.d(
+                            "ccccc",
+                            enemy.name + enemy.hp.toString() +
+                                enemy.atk.toString() + enemy.spd.toString()
+                        )
+                    }
+                else ->
+                    {
+                        enemy.hp = (enemy.hp).toInt()
+                        enemy.atk = (enemy.atk).toInt()
+                        enemy.def = (enemy.def).toInt()
+                        enemy.spd = (enemy.spd).toInt()
+                        Log.d(
+                            "ccccc",
+                            enemy.name + enemy.hp.toString() +
+                                enemy.atk.toString() + enemy.spd.toString()
+                        )
+                    }
+            }
         }
     }
 }
