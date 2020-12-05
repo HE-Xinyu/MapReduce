@@ -1,6 +1,7 @@
 package edu.utap.mapreduce.model
 
 import android.util.Log
+import edu.utap.mapreduce.GameActivity
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -14,8 +15,12 @@ enum class RoomKind {
 
 class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
     var enemies: MutableList<Enemy>? = null
+    var isChallenge = false
 
-    fun fillEnemies() {
+    fun fillEnemies(player: Player) {
+        // we need to pass player into the function because we need to read whether the player
+        // has MapReduce, and also change the statsMultiplier.
+        // NOTE: the function MUST BE idempotent!
         if (kind == RoomKind.CHEST || kind == RoomKind.SHOP) {
             Log.e("aaa", "you should not fill enemies in this room")
             return
@@ -32,9 +37,58 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
         for (i in 0 until numEnemies) {
             enemies!!.add(sampleEnemy())
         }
+
+        Log.d("aaa", "Original enemy size: ${enemies!!.size}")
+
+        if (isChallenge) {
+            Log.d("aaa", "Challenging room")
+            enemies!!.add(sampleEnemy(EnemyKind.NORMAL))
+        }
+
+        if (player.hasMapReduce) {
+            // do map reduce!
+            // 1. set the stats multiplier of the player
+            player.statsMultiplier = enemies!!.size
+
+            // 2. decide enemy kind by choosing the 'maximum' one
+            val kind = enemies!!.map { it.kind }.reduce { acc, enemyKind ->
+                if (acc == EnemyKind.BOSS || enemyKind == EnemyKind.BOSS) EnemyKind.BOSS
+                else if (acc == EnemyKind.ELITE || enemyKind == EnemyKind.ELITE) EnemyKind.ELITE
+                else EnemyKind.NORMAL
+            }
+
+            // 3. sum the stats
+            val totalHp = enemies!!.sumBy { it.hp }
+            val totalAtk = enemies!!.sumBy { it.atk }
+            val totalDef = enemies!!.sumBy { it.def }
+            val totalSpd = enemies!!.sumBy { it.spd }
+
+            // 4. replace the list with a new enemy
+            val resultEnemy = Enemy(
+                name = "Merged $kind",
+                hp = totalHp,
+                atk = totalAtk,
+                def = totalDef,
+                spd = totalSpd,
+                kind = kind,
+            )
+
+            GameActivity.logger.log(
+                "MapReduce complete! " +
+                    "Number of enemies merged: ${enemies!!.size}, " +
+                    "Result enemy: $resultEnemy"
+            )
+            this.enemies = listOf(resultEnemy).toMutableList()
+        }
     }
 
-    private fun sampleEnemy(): Enemy {
+    private fun sampleEnemy(enemyKind: EnemyKind? = null): Enemy {
+        if (enemyKind != null) {
+            return AllEnemies.filter {
+                it.kind == enemyKind
+            }.random().copy()
+        }
+
         return when (kind) {
             RoomKind.NORMAL -> {
                 AllEnemies.filter {

@@ -239,7 +239,7 @@ class GameActivity : AppCompatActivity() {
 
         when (room.kind) {
             RoomKind.NORMAL, RoomKind.BOSS -> {
-                room.fillEnemies()
+                room.fillEnemies(player)
                 if (this::enemyListAdapter.isInitialized) {
                     enemyListAdapter.player = player
                     enemyListAdapter.room = room

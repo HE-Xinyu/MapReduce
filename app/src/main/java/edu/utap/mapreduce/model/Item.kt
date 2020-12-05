@@ -24,6 +24,7 @@ val AllItems = setOf(
     GreatCompass(),
     ShopCompass(),
     ChestFanatic(),
+    MapReduce(),
 )
 
 enum class ItemKind {
@@ -139,6 +140,7 @@ abstract class Item(
 
         curRecharge = 0
         player.currentActivatedItem = this
+        player.status = PlayerStatus.INTERACT_WITH_ITEM
 
         return doActivate(player, stage)
     }
@@ -350,8 +352,6 @@ class ChestFanatic : Item(
     6
 ) {
     override fun doActivate(player: Player, stage: Stage): String {
-        player.status = PlayerStatus.INTERACT_WITH_ITEM
-
         return "Please select a room to convert (it cannot be a boss room)"
     }
 
@@ -365,5 +365,47 @@ class ChestFanatic : Item(
         player.currentActivatedItem = null
         room.kind = RoomKind.CHEST
         return "Success!"
+    }
+}
+
+class MapReduce : Item(
+    "MapReduce",
+    "Do a MapReduce to the enemy list. " +
+        "Merge all the enemies of a room into one, with all the stats summed. " +
+        "Player will receive stats boost based on the number of enemies merged.",
+    ItemKind.PASSIVE,
+    RareLevel.EXTREME,
+) {
+    override fun onObtained(player: Player, stage: Stage) {
+        player.hasMapReduce = true
+    }
+}
+
+class Challenge : Item(
+    "Challenge",
+    "Select a room, add a random normal enemy into the enemy list. " +
+        "It happens before MapReduce.",
+    ItemKind.ACTIVATED,
+    RareLevel.VERY_SPECIAL,
+    5
+) {
+    override fun doActivate(player: Player, stage: Stage): String {
+        return "Please select a room to challenge yourself. " +
+            "It can only be a normal room or a boss room."
+    }
+
+    override fun doRoomSelected(player: Player, stage: Stage, roomIdx: Int): String {
+        val room = stage.rooms[roomIdx]
+        return when (room.kind) {
+            RoomKind.CHEST, RoomKind.SHOP -> {
+                "You cannot add a challenge to non-battle rooms"
+            }
+            else -> {
+                room.isChallenge = true
+                player.currentActivatedItem = null
+                player.status = PlayerStatus.INTERACT_WITH_STAGE
+                "Success!"
+            }
+        }
     }
 }
