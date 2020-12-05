@@ -50,6 +50,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var roomDetailV: RecyclerView
     private lateinit var logContainer: ScrollView
     private lateinit var gameLogV: TextView
+    private var stageNum = 1
 
     // room view id -> room index
     private var viewId2Idx = mutableMapOf<Int, Int>()
@@ -468,6 +469,14 @@ class GameActivity : AppCompatActivity() {
                 }
 
                 redrawStage()
+                if (stageNum != it.curStage) {
+                    Toast.makeText(
+                        this,
+                        "You come to the stage: ${it.curStage}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    this@GameActivity.stageNum = it.curStage
+                }
             }
         )
 

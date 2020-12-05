@@ -35,7 +35,7 @@ class BattleSimulator {
             player.beginStatsBoost()
             while (round < MaxRound) {
                 if (enemy.canPenetrate) {
-                    penetrate(player, enemy)
+                    penetrate(player, enemy, round)
                 }
                 if (enemy.isToxic) {
                     doToxic(player, round)
@@ -99,9 +99,11 @@ class BattleSimulator {
             return result
         }
 
-        private fun penetrate(player: Player, enemy: Enemy) {
-            enemy.atk += (player.def * 0.2).toInt()
-            logger.log("     WEAK: ${enemy.name} have armor penetration")
+        private fun penetrate(player: Player, enemy: Enemy, round: Int) {
+            if (round < 2) {
+                enemy.atk += (player.def * 0.2).toInt()
+                logger.log("     WEAK: ${enemy.name} have armor penetration")
+            }
         }
 
         private fun doToxic(player: Player, round: Int) {
