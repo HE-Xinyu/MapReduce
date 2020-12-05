@@ -14,7 +14,10 @@ data class Enemy(
     var def: Int,
     var spd: Int,
     var name: String,
-    var kind: EnemyKind = EnemyKind.NORMAL
+    var kind: EnemyKind = EnemyKind.NORMAL,
+    var canPenetrate: Boolean = false,
+    var canSpeedUp: Boolean = false,
+    var isToxic: Boolean = false,
 ) : IAbleToFight
 // assume player(100, 50, 50, 50)
 val elf = Enemy(10, 10, 10, 10, "Elf", EnemyKind.NORMAL)
@@ -41,9 +44,9 @@ val superSlime = Enemy(600, 17, 0, 40, "Super Slime", EnemyKind.ELITE)
 val void = Enemy(52, 20, 45, 50, "Void", EnemyKind.ELITE)
 val Asura = Enemy(10, 150, 10, 10, "Asura", EnemyKind.ELITE)
 
-val bigDevilArm = Enemy(260, 80, 60, 60, "Big devil's arm", EnemyKind.BOSS)
-val bigDevilTail = Enemy(220, 90, 65, 46, "Big devil's tail", EnemyKind.BOSS)
-val bigDevilHead = Enemy(180, 100, 70, 40, "Big devil's head", EnemyKind.BOSS)
+val bigDevilArm = Enemy(260, 80, 60, 60, "Big devil's arm", EnemyKind.BOSS, canSpeedUp = true)
+val bigDevilTail = Enemy(220, 90, 65, 46, "Big devil's tail", EnemyKind.BOSS, isToxic = true)
+val bigDevilHead = Enemy(180, 100, 70, 40, "Big devil's head", EnemyKind.BOSS, canPenetrate = true)
 
 val AllEnemies = listOf(
     elf, littleBear, rotHound, poppingCandy, raven, tramp,

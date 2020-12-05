@@ -31,10 +31,14 @@ class BattleSimulator {
 
             player.beginStatsBoost()
             while (round < MaxRound) {
-                when (enemy) {
-                    bigDevilArm -> if (round == 8) { speedUp(enemy) }
-                    bigDevilTail -> toxin(player, round)
-                    bigDevilHead -> weak(player, enemy)
+                if (enemy.canPenetrate) {
+                    penetrate(player, enemy)
+                }
+                if (enemy.isToxic) {
+                    doToxic(player, round)
+                }
+                if (enemy.canSpeedUp && round == 8) {
+                    speedUp(enemy)
                 }
                 round++
                 val damageToEnemy = max(player.atk - enemy.def, 0)
@@ -81,12 +85,12 @@ class BattleSimulator {
             return result
         }
 
-        private fun weak(player: Player, enemy: Enemy) {
+        private fun penetrate(player: Player, enemy: Enemy) {
             enemy.atk += (player.def * 0.2).toInt()
             logger.log("WEAK: ${enemy.name} have armor penetration")
         }
 
-        private fun toxin(player: Player, round: Int) {
+        private fun doToxic(player: Player, round: Int) {
             if (round < 5) {
                 player.hp -= 8
                 logger.log(

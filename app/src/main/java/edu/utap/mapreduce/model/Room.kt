@@ -57,13 +57,22 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
                 else EnemyKind.NORMAL
             }
 
-            // 3. sum the stats
+            // 3. inherit attributes
+            val isToxic = enemies!!.map { it.isToxic }.reduce { acc, isToxic -> acc || isToxic }
+            val canPenetrate = enemies!!
+                .map { it.canPenetrate }
+                .reduce { acc, canPenetrate -> acc || canPenetrate }
+            val canSpeedUp = enemies!!
+                .map { it.canSpeedUp }
+                .reduce { acc, canSpeedUp -> acc || canSpeedUp }
+
+            // 4. sum the stats
             val totalHp = enemies!!.sumBy { it.hp }
             val totalAtk = enemies!!.sumBy { it.atk }
             val totalDef = enemies!!.sumBy { it.def }
             val totalSpd = enemies!!.sumBy { it.spd }
 
-            // 4. replace the list with a new enemy
+            // 5. replace the list with a new enemy
             val resultEnemy = Enemy(
                 name = "Merged $kind",
                 hp = totalHp,
@@ -71,6 +80,9 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
                 def = totalDef,
                 spd = totalSpd,
                 kind = kind,
+                isToxic = isToxic,
+                canPenetrate = canPenetrate,
+                canSpeedUp = canSpeedUp,
             )
 
             GameActivity.logger.log(
