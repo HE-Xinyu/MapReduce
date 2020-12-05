@@ -23,6 +23,7 @@ val AllItems = setOf(
     ChestRoomCompass(),
     GreatCompass(),
     ShopCompass(),
+    ChestFanatic(),
 )
 
 enum class ItemKind {
