@@ -30,6 +30,8 @@ class Player(
 
     var status = PlayerStatus.INTERACT_WITH_STAGE
 
+    var currentActivatedItem: Item? = null
+
     /*
         Abilities that can be changed by items
      */

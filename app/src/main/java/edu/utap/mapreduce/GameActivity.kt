@@ -119,6 +119,16 @@ class GameActivity : AppCompatActivity() {
         val playerRoom = stage.rooms[player.roomIdx]
         val clickedRoom = stage.rooms[viewId2Idx[roomView.id]!!]
 
+        if (player.status == PlayerStatus.INTERACT_WITH_ITEM) {
+            val msg = player.currentActivatedItem?.doRoomSelected(player, stage, clickedRoom.id)
+            if (!msg.isNullOrEmpty()) {
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            }
+            model.setPlayer(player)
+            model.setStage(stage)
+            return
+        }
+
         if (clickedRoom.visited) {
             Toast.makeText(this, "You have visited this room", Toast.LENGTH_SHORT).show()
             return

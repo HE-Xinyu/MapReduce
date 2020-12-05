@@ -1,7 +1,6 @@
 package edu.utap.mapreduce.model
 
 import android.util.Log
-import java.lang.StringBuilder
 
 class Award {
     private var _item: Item? = null
@@ -99,35 +98,35 @@ class Award {
     }
 
     override fun toString(): String {
-        val sb = StringBuilder()
+        val awardsList = emptyList<String>().toMutableList()
         _item?.let {
-            sb.append("item: ${it.name};")
+            awardsList.add("item: ${it.name}")
         }
 
         if (_hp > 0) {
-            sb.append("hp: $_hp;")
+            awardsList.add("hp: $_hp")
         }
         if (_atk > 0) {
-            sb.append("atk: $_atk;")
+            awardsList.add("atk: $_atk")
         }
         if (_def > 0) {
-            sb.append("def: $_def;")
+            awardsList.add("def: $_def")
         }
         if (_spd > 0) {
-            sb.append("spd: $_spd;")
+            awardsList.add("spd: $_spd")
         }
         if (_keys > 0) {
-            sb.append("keys: $_keys;")
+            awardsList.add("keys: $_keys")
         }
         if (_paths > 0) {
-            sb.append("paths: $_paths;")
+            awardsList.add("paths: $_paths")
         }
         if (_chests > 0) {
-            sb.append("chests: $_chests;")
+            awardsList.add("chests: $_chests")
         }
         if (_coins > 0) {
-            sb.append("coins: $_coins;")
+            awardsList.add("coins: $_coins")
         }
-        return sb.toString()
+        return awardsList.joinToString()
     }
 }

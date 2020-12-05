@@ -93,7 +93,7 @@ abstract class Item(
 
     var curRecharge = recharge
 
-    // START OF the functions to override in each items
+    // START OF the functions to override in each item
 
     // called on every start of battles
     open fun onStartBattle(player: Player, enemy: Enemy, stage: Stage) {}
@@ -101,14 +101,16 @@ abstract class Item(
     // called on every end of battles
     open fun onEndBattle(player: Player, enemy: Enemy, stage: Stage) {}
 
-    // called when the item is obtained by the player (i.e. only call ONCE)
+    // called when the item is obtained by the player (i.e. only ONCE)
     open fun onObtained(player: Player, stage: Stage) {}
 
     // called on every activation of the item.
     // only effective for the activated items.
-    open fun doActivate(player: Player, stage: Stage) {}
+    open fun doActivate(player: Player, stage: Stage): String { return "" }
 
-    // END OF the functions to override in each items
+    open fun doRoomSelected(player: Player, stage: Stage, roomIdx: Int): String { return "" }
+
+    // END OF the functions to override in each item
 
     fun canBeActivated(): Boolean {
         return kind == ItemKind.ACTIVATED && curRecharge == recharge
@@ -135,8 +137,9 @@ abstract class Item(
         }
 
         curRecharge = 0
-        doActivate(player, stage)
-        return "Success!"
+        player.currentActivatedItem = this
+
+        return doActivate(player, stage)
     }
 
     /*
@@ -335,5 +338,31 @@ class GreatCompass : Item(
         player.canSeeBossRoom = true
         player.canSeeShop = true
         player.canSeeChestRoom = true
+    }
+}
+
+class ChestFanatic : Item(
+    "Chest Fanatic",
+    "Convert a room to a chest room",
+    ItemKind.ACTIVATED,
+    RareLevel.VERY_SPECIAL,
+    6
+) {
+    override fun doActivate(player: Player, stage: Stage): String {
+        player.status = PlayerStatus.INTERACT_WITH_ITEM
+
+        return "Please select a room to convert (it cannot be a boss room)"
+    }
+
+    override fun doRoomSelected(player: Player, stage: Stage, roomIdx: Int): String {
+        val room = stage.rooms[roomIdx]
+        if (room.kind == RoomKind.BOSS) {
+            return "You cannot convert a boss room to a chest room"
+        }
+
+        player.status = PlayerStatus.INTERACT_WITH_STAGE
+        player.currentActivatedItem = null
+        room.kind = RoomKind.CHEST
+        return "Success!"
     }
 }

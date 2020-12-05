@@ -29,6 +29,8 @@ class ChestRoomItemListAdapter(
             nameView.text = item.name
             nameView.setTextColor(Color.parseColor("#f8f3d4"))
             rechargeView.text = item.displayRecharge()
+            nameView.setTextColor(Color.parseColor("#f8f3d4"))
+            rechargeView.setTextColor(Color.parseColor("#f8f3d4"))
 
             itemView.setOnLongClickListener {
                 Toast.makeText(it.context, item.desc, Toast.LENGTH_SHORT).show()

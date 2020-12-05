@@ -70,7 +70,8 @@ class Stage(var curStage: Int) {
             for (otherRoom in rooms) {
                 // prevent randomization twice
                 if (thisRoom.isAdjacent(otherRoom) && thisRoom.id < otherRoom.id) {
-                    if (Random.nextDouble() < PathProbs[curStage]) {
+                    // curStage is 1-based
+                    if (Random.nextDouble() < PathProbs[curStage - 1]) {
                         paths[thisRoom.id].add(otherRoom)
                         paths[otherRoom.id].add(thisRoom)
                     } else {
