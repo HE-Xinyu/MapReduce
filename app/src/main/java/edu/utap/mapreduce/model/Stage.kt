@@ -93,6 +93,7 @@ class Stage(var curStage: Int) {
         }
 
         curStage++
+//        Toast.makeText(GameActivity(), "You come to the next stage: $curStage", Toast.LENGTH_SHORT).show()
         doInit()
     }
 }

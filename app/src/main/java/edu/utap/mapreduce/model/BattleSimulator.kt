@@ -31,11 +31,17 @@ class BattleSimulator {
 
             var round = 1
             var result = BattleResult.LOSE
+
+            player.beginStatsBoost()
             while (round < MaxRound) {
-                when (enemy) {
-                    bigDevilArm -> if (round == 8) { speedUp(enemy) }
-                    bigDevilTail -> toxin(player, round)
-                    bigDevilHead -> weak(player, enemy)
+                if (enemy.canPenetrate) {
+                    penetrate(player, enemy)
+                }
+                if (enemy.isToxic) {
+                    doToxic(player, round)
+                }
+                if (enemy.canSpeedUp && round == 8) {
+                    speedUp(enemy)
                 }
                 round++
                 val damageToEnemy = max(player.atk - enemy.def, 0)
@@ -45,10 +51,10 @@ class BattleSimulator {
                     if (enemy.isDead()) {
                         result = BattleResult.WIN
                         logger.log(
-                            "     Every time you caused $damageToEnemy damage to ${enemy.name}"
+                            "     Every round you caused $damageToEnemy damage to ${enemy.name}"
                         )
                         logger.log(
-                            "     Every time ${enemy.name} caused $damageToPlayer damage to you"
+                            "     Every round ${enemy.name} caused $damageToPlayer damage to you"
                         )
                         logger.log("You $result the battle")
                         break
@@ -66,10 +72,10 @@ class BattleSimulator {
                     if (player.isDead()) {
                         result = BattleResult.LOSE
                         logger.log(
-                            "     Every time ${enemy.name} caused $damageToPlayer damage to you"
+                            "     Every round ${enemy.name} caused $damageToPlayer damage to you"
                         )
                         logger.log(
-                            "     Every time You caused $damageToEnemy damage to ${enemy.name}"
+                            "     Every round You caused $damageToEnemy damage to ${enemy.name}"
                         )
                         logger.log("You $result the battle")
                         break
@@ -83,6 +89,8 @@ class BattleSimulator {
                     }
                 }
             }
+            player.endStatsBoost()
+            Log.d("aaa", logger.show().toString())
 
             player.obtainedItems.forEach {
                 it.onEndBattle(player, enemy, stage)
@@ -91,17 +99,17 @@ class BattleSimulator {
             return result
         }
 
-        private fun weak(player: Player, enemy: Enemy) {
+        private fun penetrate(player: Player, enemy: Enemy) {
             enemy.atk += (player.def * 0.2).toInt()
             logger.log("     WEAK: ${enemy.name} have armor penetration")
         }
 
-        private fun toxin(player: Player, round: Int) {
-            if (round < 5) {
-                player.hp -= 8
+        private fun doToxic(player: Player, round: Int) {
+            if (round < 4) {
+                player.hp -= 4
                 logger.log(
-                    "     TOXIN: In the next ${5 - round} rounds, " +
-                        "player will reduce 8 hp every time"
+                    "     TOXIN: In the next ${4 - round} rounds, " +
+                        "player will reduce 4 hp every round"
                 )
             }
         }
@@ -119,11 +127,6 @@ class BattleSimulator {
                         enemy.atk = (enemy.atk * 1.1).toInt()
                         enemy.def = (enemy.def * 1.1).toInt()
                         enemy.spd = (enemy.spd * 1.1).toInt()
-                        Log.d(
-                            "ccccc",
-                            enemy.name + enemy.hp.toString() +
-                                enemy.atk.toString() + enemy.spd.toString()
-                        )
                     }
                 3 ->
                     {
@@ -131,23 +134,13 @@ class BattleSimulator {
                         enemy.atk = (enemy.atk * 1.2).toInt()
                         enemy.def = (enemy.def * 1.2).toInt()
                         enemy.spd = (enemy.spd * 1.2).toInt()
-                        Log.d(
-                            "ccccc",
-                            enemy.name + enemy.hp.toString() +
-                                enemy.atk.toString() + enemy.spd.toString()
-                        )
                     }
                 else ->
                     {
-                        enemy.hp = (enemy.hp).toInt()
-                        enemy.atk = (enemy.atk).toInt()
-                        enemy.def = (enemy.def).toInt()
-                        enemy.spd = (enemy.spd).toInt()
-                        Log.d(
-                            "ccccc",
-                            enemy.name + enemy.hp.toString() +
-                                enemy.atk.toString() + enemy.spd.toString()
-                        )
+                        enemy.hp = (enemy.hp * 0.9).toInt()
+                        enemy.atk = (enemy.atk * 0.9).toInt()
+                        enemy.def = (enemy.def * 0.9).toInt()
+                        enemy.spd = (enemy.spd * 0.9).toInt()
                     }
             }
         }

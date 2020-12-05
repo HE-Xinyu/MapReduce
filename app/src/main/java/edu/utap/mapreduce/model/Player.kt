@@ -38,6 +38,9 @@ class Player(
     var canSeeChestRoom = false
     var canSeeShop = false
     var canSeeBossRoom = false
+    var hasMapReduce = false
+
+    var statsMultiplier = 1
 
     fun initPosition(stage: Stage) {
         while (true) {
@@ -47,5 +50,19 @@ class Player(
                 return
             }
         }
+    }
+
+    fun beginStatsBoost() {
+        hp *= statsMultiplier
+        atk *= statsMultiplier
+        def *= statsMultiplier
+        spd *= statsMultiplier
+    }
+
+    fun endStatsBoost() {
+        hp /= statsMultiplier
+        atk /= statsMultiplier
+        def /= statsMultiplier
+        spd /= statsMultiplier
     }
 }

@@ -239,7 +239,7 @@ class GameActivity : AppCompatActivity() {
 
         when (room.kind) {
             RoomKind.NORMAL, RoomKind.BOSS -> {
-                room.fillEnemies()
+                room.fillEnemies(player)
                 if (this::enemyListAdapter.isInitialized) {
                     enemyListAdapter.player = player
                     enemyListAdapter.room = room
@@ -287,6 +287,11 @@ class GameActivity : AppCompatActivity() {
                     }
                 }
                 roomDetailV.adapter = shopItemListAdapter
+                Toast.makeText(
+                    this,
+                    "Please touch the back button to quit the shop",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
         mapContainer.addView(roomDetailV)

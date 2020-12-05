@@ -43,7 +43,6 @@ class EnemyListAdapter(
 
                 if (result == BattleResult.WIN) {
                     val award = AwardSampler.sample(player, enemy)
-                    // TODO: tell player about the award and the battle result: finished?
                     logger.log("AWARD: You get the $award")
                     Log.d("aaa", award.toString())
                     award.applyTo(player, stage)
@@ -56,6 +55,7 @@ class EnemyListAdapter(
                         player.status = PlayerStatus.INTERACT_WITH_STAGE
                         if (room.kind == RoomKind.BOSS) {
                             stage.advance()
+                            logger.log("You come to the next stage: ${stage.curStage}")
                             player.initPosition(stage)
                         }
                         model.setStage(stage)
