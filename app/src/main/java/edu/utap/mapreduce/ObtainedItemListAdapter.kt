@@ -26,7 +26,7 @@ class ObtainedItemListAdapter(var player: Player, var stage: Stage, val model: G
                 RareLevel.SPECIAL -> nameView.setTextColor(Color.parseColor("#00b8a9"))
                 RareLevel.VERY_SPECIAL -> nameView.setTextColor(Color.parseColor("#da9ff9"))
                 RareLevel.LEGENDARY -> nameView.setTextColor(Color.parseColor("#ffda77"))
-                else -> {}
+                else -> nameView.setTextColor(Color.parseColor("#808080"))
             }
             rechargeView.text = item.displayRecharge()
 
