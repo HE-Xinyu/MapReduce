@@ -137,10 +137,10 @@ class BattleSimulator {
                     }
                 3 ->
                     {
-                        enemy.hp = (enemy.hp * 1.2).toInt()
-                        enemy.atk = (enemy.atk * 1.2).toInt()
-                        enemy.def = (enemy.def * 1.2).toInt()
-                        enemy.spd = (enemy.spd * 1.2).toInt()
+                        enemy.hp = (enemy.hp * 1.3).toInt()
+                        enemy.atk = (enemy.atk * 1.3).toInt()
+                        enemy.def = (enemy.def * 1.3).toInt()
+                        enemy.spd = (enemy.spd * 1.3).toInt()
                     }
                 else ->
                     {
