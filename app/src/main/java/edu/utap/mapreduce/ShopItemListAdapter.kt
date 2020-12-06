@@ -38,13 +38,6 @@ class ShopItemListAdapter(
                     else -> nameView.setTextColor(Color.parseColor("#f8f3d4"))
                 }
             } else { nameView.setTextColor(Color.parseColor("#f8f3d4")) }
-//            when(Item){
-//                RareLevel.SPECIAL -> nameView.setTextColor(Color.parseColor("#00b8a9"))
-//                RareLevel.VERY_SPECIAL -> nameView.setTextColor(Color.parseColor("#da9ff9"))
-//                RareLevel.LEGENDARY -> nameView.setTextColor(Color.parseColor("#ffda77"))
-//                else -> nameView.setTextColor(Color.parseColor("#f8f3d4"))
-//            }
-//            nameView.setTextColor(Color.parseColor("#f8f3d4"))
             nameView.textSize = 20F
             priceView.text = shopItem.getPrice().toString()
             priceView.setTextColor(Color.parseColor("#f8f3d4"))
