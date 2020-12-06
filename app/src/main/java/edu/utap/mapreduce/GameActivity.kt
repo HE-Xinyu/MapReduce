@@ -428,8 +428,10 @@ class GameActivity : AppCompatActivity() {
 
             player.numKeys--
             player.numChests--
-            // TODO: tell player about the award!
+            logger.log("You used a key to open a chest")
             AwardSampler.sampleChest(player).applyTo(player, stage)
+            val awardGet = AwardSampler.sampleChest(player)
+            logger.log("AWARD: You get $awardGet")
 
             model.setPlayer(player)
         }
