@@ -12,6 +12,7 @@ import edu.utap.mapreduce.model.GameViewModel
 import edu.utap.mapreduce.model.Item
 import edu.utap.mapreduce.model.Player
 import edu.utap.mapreduce.model.PlayerStatus
+import edu.utap.mapreduce.model.RareLevel
 import edu.utap.mapreduce.model.Stage
 
 class ChestRoomItemListAdapter(
@@ -28,8 +29,15 @@ class ChestRoomItemListAdapter(
             Log.d("aaa", "binding ${item.name}")
             nameView.text = item.name
             rechargeView.text = item.displayRecharge()
-            nameView.setTextColor(Color.parseColor("#f8f3d4"))
+            when (item.level) {
+                RareLevel.SPECIAL -> nameView.setTextColor(Color.parseColor("#00b8a9"))
+                RareLevel.VERY_SPECIAL -> nameView.setTextColor(Color.parseColor("#da9ff9"))
+                RareLevel.LEGENDARY -> nameView.setTextColor(Color.parseColor("#ffda77"))
+                else -> nameView.setTextColor(Color.parseColor("#f8f3d4"))
+            }
             rechargeView.setTextColor(Color.parseColor("#f8f3d4"))
+            nameView.textSize = 20F
+            rechargeView.textSize = 20F
 
             itemView.setOnLongClickListener {
                 Toast.makeText(it.context, item.desc, Toast.LENGTH_SHORT).show()

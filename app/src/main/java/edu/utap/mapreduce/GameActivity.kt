@@ -50,6 +50,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var roomDetailV: RecyclerView
     private lateinit var logContainer: ScrollView
     private lateinit var gameLogV: TextView
+    private var stageNum = 1
 
     // room view id -> room index
     private var viewId2Idx = mutableMapOf<Int, Int>()
@@ -119,6 +120,9 @@ class GameActivity : AppCompatActivity() {
         val playerRoom = stage.rooms[player.roomIdx]
         val clickedRoom = stage.rooms[viewId2Idx[roomView.id]!!]
 
+        Log.d("aaa", "Player at ${playerRoom.x}, ${playerRoom.y}")
+        Log.d("aaa", "Clicked at ${clickedRoom.x}, ${clickedRoom.y}")
+
         if (player.status == PlayerStatus.INTERACT_WITH_ITEM) {
             val msg = player.currentActivatedItem?.doRoomSelected(player, stage, clickedRoom.id)
             if (!msg.isNullOrEmpty()) {
@@ -157,8 +161,16 @@ class GameActivity : AppCompatActivity() {
             // use 'paths' to make a room reachable
             if (player.numPaths > 0) {
                 player.numPaths--
-                stage.paths[playerRoom.id].add(clickedRoom)
-                stage.paths[clickedRoom.id].add(playerRoom)
+                // playerRoom and clickedRoom may NOT be adjacent!
+                // the solution is to choose ANY room that is adjacent to clickedRoom
+                // and also visited, and add a path between them.
+                for (adjacentRoom in clickedRoom.getAdjacentRooms(stage)) {
+                    if (adjacentRoom.visited) {
+                        stage.paths[adjacentRoom.id].add(clickedRoom)
+                        stage.paths[clickedRoom.id].add(adjacentRoom)
+                        break
+                    }
+                }
 
                 logger.log("You used a path")
                 Toast.makeText(this, "You used a path", Toast.LENGTH_SHORT).show()
@@ -177,7 +189,7 @@ class GameActivity : AppCompatActivity() {
             return
         }
 
-        player.roomIdx = viewId2Idx[roomView.id]!!
+        player.roomIdx = clickedRoom.id
 
         val result = clickedRoom.tryQuickAccess(player)
         if (!result.first) {
@@ -189,7 +201,6 @@ class GameActivity : AppCompatActivity() {
 
         clickedRoom.visited = true
 
-        player.roomIdx = viewId2Idx[roomView.id]!!
         player.obtainedItems.forEach {
             it.doRecharge()
         }
@@ -287,6 +298,11 @@ class GameActivity : AppCompatActivity() {
                     }
                 }
                 roomDetailV.adapter = shopItemListAdapter
+                Toast.makeText(
+                    this,
+                    "Please touch the back button to quit the shop",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
         mapContainer.addView(roomDetailV)
@@ -316,6 +332,9 @@ class GameActivity : AppCompatActivity() {
         val playerRoom = stage.rooms[player.roomIdx]
 
         stage.rooms.forEachIndexed { idx, room ->
+            if (room.id != idx) {
+                throw Exception("haha")
+            }
             val button = Button(this)
             button.layoutParams = FrameLayout.LayoutParams(
                 dpToPixel(RoomDisplaySize.toDouble()).toInt(),
@@ -345,13 +364,13 @@ class GameActivity : AppCompatActivity() {
                                 (RoomDisplaySize + RoomInterval).toDouble()
                             ).toFloat()
                             )
-                        button.setOnClickListener { roomView ->
-                            onRoomClick(roomView)
-                        }
                     }
                 }
             )
 
+            button.setOnClickListener { roomView ->
+                onRoomClick(roomView)
+            }
             // draw buttons based on visit status and RoomKind
             if (!room.visited) {
                 val (canReach, needPath) = playerRoom.canReach(room, stage)
@@ -463,6 +482,14 @@ class GameActivity : AppCompatActivity() {
                 }
 
                 redrawStage()
+                if (stageNum != it.curStage) {
+                    Toast.makeText(
+                        this,
+                        "You come to the stage: ${it.curStage}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    this@GameActivity.stageNum = it.curStage
+                }
             }
         )
 

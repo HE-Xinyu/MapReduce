@@ -11,6 +11,7 @@ import edu.utap.mapreduce.model.GameViewModel
 import edu.utap.mapreduce.model.Item
 import edu.utap.mapreduce.model.Player
 import edu.utap.mapreduce.model.PlayerStatus
+import edu.utap.mapreduce.model.RareLevel
 import edu.utap.mapreduce.model.ShopItem
 import edu.utap.mapreduce.model.ShopItemKind
 import edu.utap.mapreduce.model.Stage
@@ -29,9 +30,18 @@ class ShopItemListAdapter(
         fun bind(pos: Int) {
             val shopItem = shopItems[pos]
             nameView.text = shopItem.showName()
+            if (shopItem.kind == ShopItemKind.ITEM) {
+                when ((shopItem.amountOrItem as Item).level) {
+                    RareLevel.SPECIAL -> nameView.setTextColor(Color.parseColor("#00b8a9"))
+                    RareLevel.VERY_SPECIAL -> nameView.setTextColor(Color.parseColor("#da9ff9"))
+                    RareLevel.LEGENDARY -> nameView.setTextColor(Color.parseColor("#ffda77"))
+                    else -> nameView.setTextColor(Color.parseColor("#f8f3d4"))
+                }
+            } else { nameView.setTextColor(Color.parseColor("#f8f3d4")) }
+            nameView.textSize = 20F
             priceView.text = shopItem.getPrice().toString()
-            nameView.setTextColor(Color.parseColor("#f8f3d4"))
             priceView.setTextColor(Color.parseColor("#f8f3d4"))
+            priceView.textSize = 20F
 
             itemView.setOnClickListener {
                 val price = shopItem.getPrice()

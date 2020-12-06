@@ -20,6 +20,8 @@
         />
         <activity android:name=".EndActivity"
             />
+        <activity android:name=".Guide"
+            />
     </application>
 
 </manifest>

@@ -27,18 +27,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="SHOW LOG"
-        app:layout_constraintEnd_toStartOf="@+id/timerV"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/switchV"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/timerV"
-        android:text="0:00:00"
-        android:textSize="18sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
 
     <!--    Unfortunately it is a little ugly currently -->
     <FrameLayout

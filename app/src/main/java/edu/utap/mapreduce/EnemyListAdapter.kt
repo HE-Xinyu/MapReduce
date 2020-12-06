@@ -1,5 +1,6 @@
 package edu.utap.mapreduce
 
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import edu.utap.mapreduce.model.AwardSampler
 import edu.utap.mapreduce.model.BattleResult
 import edu.utap.mapreduce.model.BattleSimulator
+import edu.utap.mapreduce.model.EnemyKind
 import edu.utap.mapreduce.model.GameViewModel
 import edu.utap.mapreduce.model.Player
 import edu.utap.mapreduce.model.PlayerStatus
@@ -29,6 +31,12 @@ class EnemyListAdapter(
         fun bind(pos: Int) {
             val enemy = room.enemies!![pos]
             nameView.text = enemy.name
+            when (enemy.kind) {
+                EnemyKind.ELITE -> nameView.setTextColor(Color.parseColor("#da9ff9"))
+                EnemyKind.BOSS -> nameView.setTextColor(Color.parseColor("#ffda77"))
+                else -> nameView.setTextColor(Color.parseColor("#f8f3d4"))
+            }
+            nameView.textSize = 20F
             itemView.setOnClickListener {
                 /*
                     battle happens here.
@@ -40,7 +48,6 @@ class EnemyListAdapter(
 
                 if (result == BattleResult.WIN) {
                     val award = AwardSampler.sample(player, enemy)
-                    // TODO: tell player about the award and the battle result: finished?
                     logger.log("AWARD: You get the $award")
                     Log.d("aaa", award.toString())
                     award.applyTo(player, stage)
@@ -53,6 +60,7 @@ class EnemyListAdapter(
                         player.status = PlayerStatus.INTERACT_WITH_STAGE
                         if (room.kind == RoomKind.BOSS) {
                             stage.advance()
+                            logger.log("You come to the next stage: ${stage.curStage}")
                             player.initPosition(stage)
                         }
                         model.setStage(stage)
