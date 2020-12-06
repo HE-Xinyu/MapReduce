@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import edu.utap.mapreduce.model.AwardSampler
 import edu.utap.mapreduce.model.BattleResult
 import edu.utap.mapreduce.model.BattleSimulator
+import edu.utap.mapreduce.model.EnemyKind
 import edu.utap.mapreduce.model.GameViewModel
 import edu.utap.mapreduce.model.Player
 import edu.utap.mapreduce.model.PlayerStatus
@@ -30,7 +31,11 @@ class EnemyListAdapter(
         fun bind(pos: Int) {
             val enemy = room.enemies!![pos]
             nameView.text = enemy.name
-            nameView.setTextColor(Color.parseColor("#f8f3d4"))
+            when (enemy.kind) {
+                EnemyKind.ELITE -> nameView.setTextColor(Color.parseColor("#da9ff9"))
+                EnemyKind.BOSS -> nameView.setTextColor(Color.parseColor("#ffda77"))
+                else -> nameView.setTextColor(Color.parseColor("#f8f3d4"))
+            }
             nameView.textSize = 20F
             itemView.setOnClickListener {
                 /*
