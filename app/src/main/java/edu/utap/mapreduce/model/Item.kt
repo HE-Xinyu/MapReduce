@@ -37,7 +37,7 @@ enum class RareLevel(val weight: Int) {
     NORMAL(100),
     SPECIAL(20),
     VERY_SPECIAL(5),
-    EXTREME(2),
+    LEGENDARY(2),
 }
 
 abstract class Item(
@@ -375,7 +375,7 @@ class MapReduce : Item(
         "Merge all the enemies of a room into one, with all the stats summed. " +
         "Player will receive stats boost based on the number of enemies merged.",
     ItemKind.PASSIVE,
-    RareLevel.EXTREME,
+    RareLevel.LEGENDARY,
 ) {
     override fun onObtained(player: Player, stage: Stage) {
         player.hasMapReduce = true
