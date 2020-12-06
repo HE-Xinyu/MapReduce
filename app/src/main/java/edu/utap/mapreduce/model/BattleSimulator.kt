@@ -1,6 +1,5 @@
 package edu.utap.mapreduce.model
 
-import android.util.Log
 import edu.utap.mapreduce.GameActivity
 import kotlin.math.max
 
@@ -96,7 +95,7 @@ class BattleSimulator {
                 }
             }
             player.endStatsBoost()
-            Log.d("aaa", logger.show().toString())
+//            Log.d("aaa", logger.show().toString())
 
             player.obtainedItems.forEach {
                 it.onEndBattle(player, enemy, stage)

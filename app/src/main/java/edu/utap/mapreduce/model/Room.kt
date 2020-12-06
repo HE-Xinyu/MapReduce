@@ -131,7 +131,7 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
         return abs(x - other.x) + abs(y - other.y) == 1
     }
 
-    private fun getAdjacentRooms(stage: Stage): List<Room> {
+    fun getAdjacentRooms(stage: Stage): List<Room> {
         val dx = listOf(-1, 1, 0, 0)
         val dy = listOf(0, 0, -1, 1)
 
@@ -168,6 +168,8 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
         val q = listOf(this).toMutableList()
         val enqueued = setOf(this).toMutableSet()
 
+        Log.d("bfs", "$x, $y -> ${other.x}, ${other.y}")
+
         while (q.isNotEmpty()) {
             val current = q.removeFirst()
             if (current === other) {
@@ -176,15 +178,20 @@ class Room(var x: Int, var y: Int, var kind: RoomKind, var id: Int) {
                 break
             }
 
+            Log.d("bfs", "current: ${current.x}, ${current.y}")
+
             for (next in current.getAdjacentRooms(stage)) {
                 if (enqueued.contains(next)) {
                     continue
                 }
+                Log.d("bfs", "next: ${next.x}, ${next.y}")
 
                 if (stage.paths[current.id].contains(next) && (next.visited || next === other)) {
+                    Log.d("bfs", "enqueued next")
                     q.add(next)
                     enqueued.add(next)
                 } else if (next === other) {
+                    Log.d("bfs", "need path")
                     ok = true
                     needPath = true
                 }
